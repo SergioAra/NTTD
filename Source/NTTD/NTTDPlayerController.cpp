@@ -3,9 +3,10 @@
 #include "NTTDPlayerController.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
+//#include "HeadMountedDisplayFunctionLibrary.h"
 #include "NTTDCharacter.h"
-#include "Engine/World.h"
+#include "Kismet/KismetMathLibrary.h"
+//#include "Engine/World.h"
 
 ANTTDPlayerController::ANTTDPlayerController()
 {
@@ -17,10 +18,9 @@ void ANTTDPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
-	// keep updating the destination every tick while desired
-	if (bMoveToMouseCursor)
+	if(bLockAim || bMoveToMouseCursor)
 	{
-		MoveToMouseCursor();
+		TraceMouseCursor();
 	}
 }
 
@@ -31,20 +31,46 @@ void ANTTDPlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("SetDestination", IE_Pressed, this, &ANTTDPlayerController::OnSetDestinationPressed);
 	InputComponent->BindAction("SetDestination", IE_Released, this, &ANTTDPlayerController::OnSetDestinationReleased);
+	
+	InputComponent->BindAction("LockAim", IE_Pressed, this, &ANTTDPlayerController::OnLockAimPressed);
+	InputComponent->BindAction("LockAim", IE_Released, this, &ANTTDPlayerController::OnLockAimReleased);
 
 	// support touch devices 
-	InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ANTTDPlayerController::MoveToTouchLocation);
-	InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ANTTDPlayerController::MoveToTouchLocation);
+	//InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ANTTDPlayerController::MoveToTouchLocation);
+	//InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ANTTDPlayerController::MoveToTouchLocation);
 
-	InputComponent->BindAction("ResetVR", IE_Pressed, this, &ANTTDPlayerController::OnResetVR);
+	//InputComponent->BindAction("ResetVR", IE_Pressed, this, &ANTTDPlayerController::OnResetVR);
 }
 
+/*
 void ANTTDPlayerController::OnResetVR()
 {
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
+*/
 
-void ANTTDPlayerController::MoveToMouseCursor()
+void ANTTDPlayerController::TraceMouseCursor()
+{
+	// Trace to see what is under the mouse cursor
+	FHitResult Hit;
+	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+
+	if (Hit.bBlockingHit)
+	{
+		if(bLockAim)
+		{
+			SetNewRotateDestination(Hit.ImpactPoint);
+		}else
+			if(bMoveToMouseCursor)
+			{
+				SetNewMoveDestination(Hit.ImpactPoint);
+			}
+		
+	}
+}
+
+/*
+void ANTTDPlayerController::MoveToMouseCursorVR()
 {
 	if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
 	{
@@ -69,7 +95,9 @@ void ANTTDPlayerController::MoveToMouseCursor()
 		}
 	}
 }
+*/
 
+/*
 void ANTTDPlayerController::MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
 	FVector2D ScreenSpaceLocation(Location);
@@ -83,6 +111,7 @@ void ANTTDPlayerController::MoveToTouchLocation(const ETouchIndex::Type FingerIn
 		SetNewMoveDestination(HitResult.ImpactPoint);
 	}
 }
+*/
 
 void ANTTDPlayerController::SetNewMoveDestination(const FVector DestLocation)
 {
@@ -95,7 +124,20 @@ void ANTTDPlayerController::SetNewMoveDestination(const FVector DestLocation)
 		if ((Distance > 120.0f))
 		{
 			UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, DestLocation);
+			
 		}
+	}
+}
+
+void ANTTDPlayerController::SetNewRotateDestination(const FVector DestLocation)
+{
+	APawn* const MyPawn = GetPawn();
+	if (MyPawn)
+	{
+		FVector PawnLocation = MyPawn->GetActorLocation();
+		FRotator PawnRotation = MyPawn->GetControlRotation();
+		FRotator Rotation = UKismetMathLibrary::MakeRotator(PawnRotation.Roll,PawnRotation.Pitch,UKismetMathLibrary::FindLookAtRotation(PawnLocation, DestLocation).Yaw);
+		MyPawn->SetActorRotation(Rotation, ETeleportType::TeleportPhysics);
 	}
 }
 
@@ -109,4 +151,16 @@ void ANTTDPlayerController::OnSetDestinationReleased()
 {
 	// clear flag to indicate we should stop updating the destination
 	bMoveToMouseCursor = false;
+}
+
+void ANTTDPlayerController::OnLockAimPressed()
+{
+	// set flag to lock player in place
+	bLockAim = true;
+}
+
+void ANTTDPlayerController::OnLockAimReleased()
+{
+	//clear flag to allow player to move again
+	bLockAim = false;
 }
