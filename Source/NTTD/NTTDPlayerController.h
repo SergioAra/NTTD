@@ -27,16 +27,16 @@ protected:
 	// End PlayerController interface
 
 	/** Resets HMD orientation in VR. */
-	void OnResetVR();
+	//void OnResetVR();
 
 	/** trace the current mouse cursor location vector. */
-	void TraceMouseCursor();
+	bool TraceMouseCursor(FHitResult &Hit);
 
 	/** Navigate player to the current mouse cursor location with VR option. */
-	void MoveToMouseCursorVR();
+	//void MoveToMouseCursorVR();
 
 	/** Navigate player to the current touch location. */
-	void MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location);
+	//void MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location);
 	
 	/** Navigate player to the given world location. */
 	void SetNewMoveDestination(const FVector DestLocation);

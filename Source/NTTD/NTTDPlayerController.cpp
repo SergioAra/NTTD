@@ -18,10 +18,18 @@ void ANTTDPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
-	if(bLockAim || bMoveToMouseCursor)
+	FHitResult Hit;
+	if(bLockAim)
 	{
-		TraceMouseCursor();
-	}
+		if(TraceMouseCursor(Hit))
+			SetNewRotateDestination(Hit.ImpactPoint);
+	}else
+		if(bMoveToMouseCursor)
+		{
+			if(TraceMouseCursor(Hit))
+				SetNewMoveDestination(Hit.ImpactPoint);
+		}
+	
 }
 
 void ANTTDPlayerController::SetupInputComponent()
@@ -49,24 +57,16 @@ void ANTTDPlayerController::OnResetVR()
 }
 */
 
-void ANTTDPlayerController::TraceMouseCursor()
+bool ANTTDPlayerController::TraceMouseCursor(FHitResult &Hit)
 {
 	// Trace to see what is under the mouse cursor
-	FHitResult Hit;
 	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
 
 	if (Hit.bBlockingHit)
-	{
-		if(bLockAim)
-		{
-			SetNewRotateDestination(Hit.ImpactPoint);
-		}else
-			if(bMoveToMouseCursor)
-			{
-				SetNewMoveDestination(Hit.ImpactPoint);
-			}
-		
+	{	
+		return true;	
 	}
+	return false;
 }
 
 /*
@@ -124,7 +124,6 @@ void ANTTDPlayerController::SetNewMoveDestination(const FVector DestLocation)
 		if ((Distance > 120.0f))
 		{
 			UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, DestLocation);
-			
 		}
 	}
 }
@@ -134,10 +133,16 @@ void ANTTDPlayerController::SetNewRotateDestination(const FVector DestLocation)
 	APawn* const MyPawn = GetPawn();
 	if (MyPawn)
 	{
-		FVector PawnLocation = MyPawn->GetActorLocation();
-		FRotator PawnRotation = MyPawn->GetControlRotation();
-		FRotator Rotation = UKismetMathLibrary::MakeRotator(PawnRotation.Roll,PawnRotation.Pitch,UKismetMathLibrary::FindLookAtRotation(PawnLocation, DestLocation).Yaw);
+		// get the pawn location vector
+		const FVector PawnLocation = MyPawn->GetActorLocation();
+		// get the pawn rotation rotator
+		const FRotator PawnRotation = MyPawn->GetControlRotation();
+		// create a rotator with players Roll and Pitch, and the DestLocation's Yaw to rotate the player towards the cursor
+		const FRotator Rotation = UKismetMathLibrary::MakeRotator(PawnRotation.Roll,PawnRotation.Pitch,UKismetMathLibrary::FindLookAtRotation(PawnLocation, DestLocation).Yaw);
 		MyPawn->SetActorRotation(Rotation, ETeleportType::TeleportPhysics);
+		// stop character movement if LockingAim while moving
+		if(MyPawn->GetVelocity().Size() > 0)
+			StopMovement();
 	}
 }
 
