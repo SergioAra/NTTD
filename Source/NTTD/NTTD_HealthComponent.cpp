@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Components/NTTD_HealthComponent.h"
+#include "NTTD_HealthComponent.h"
 
 // Sets default values for this component's properties
 UNTTD_HealthComponent::UNTTD_HealthComponent()

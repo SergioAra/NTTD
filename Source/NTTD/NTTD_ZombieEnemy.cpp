@@ -2,9 +2,9 @@
 
 
 #include "NTTD_ZombieEnemy.h"
-#include "Components/NTTD_HealthComponent.h"
+#include "NTTD_HealthComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "..\Public\NTTD_ZombieEnemy.h"
+#include "NTTD_ZombieEnemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 
