@@ -80,15 +80,18 @@ void ANTTD_ZombieEnemy::CheckIfZombieIsHeavilyDamaged(float CurrentHealth, float
 
 void ANTTD_ZombieEnemy::Death(AActor* DamageCauser)
 {
-	GetMesh()->SetSimulatePhysics(false);
-	GetCharacterMovement()->DisableMovement();
-
-	if (IsValid(MyController))
+	if (!bIsDead)
 	{
-		MyController->UnPossess();
-		MyController->Destroy();
+		bIsDead = true;
+
+		if (IsValid(MyController))
+		{
+			MyController->UnPossess();
+			MyController->Destroy();
+		}
+
+		BP_Death();
 	}
-	//Delay and Kill
 }
 
 // Called every frame

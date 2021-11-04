@@ -33,6 +33,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 	bool bIsHeavilyDamaged;
 
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+	bool bIsDead;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "State", meta = (ClampMin = 0.1f, ClampMax = 1.0f))
 	float HeavilyDamagedRatio;
 
@@ -70,6 +73,9 @@ protected:
 
 	UFUNCTION()
 	void Death(AActor* DamageCauser);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_Death();
 
 public:	
 	// Called every frame

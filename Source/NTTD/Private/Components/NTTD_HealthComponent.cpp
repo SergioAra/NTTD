@@ -30,7 +30,7 @@ void UNTTD_HealthComponent::BeginPlay()
 
 void UNTTD_HealthComponent::TakingDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (Damage < 0.0f)
+	if (Damage <= 0.0f)
 	{
 		return;
 	}
