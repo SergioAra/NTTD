@@ -11,8 +11,16 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "Item.h"
+#include "Weapon.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
-ANTTDCharacter::ANTTDCharacter()
+ANTTDCharacter::ANTTDCharacter() :
+	//item trace variables
+	bShouldTraceForItems(false),
+	OverlappedItemCount(0)
 {
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -86,5 +94,94 @@ void ANTTDCharacter::Tick(float DeltaSeconds)
 			CursorToWorld->SetWorldLocation(TraceHitResult.Location);
 			CursorToWorld->SetWorldRotation(CursorR);
 		}
+	}
+}
+
+
+void ANTTDCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//Spawn the default weapon and equip it
+	EquipWeapon(SpawnDefaultWeapon());
+}
+
+
+AWeapon* ANTTDCharacter::SpawnDefaultWeapon()
+{
+	//Check the TSUbclassOf variable
+	if(DefaultWeaponClass)
+	{
+		// Spawn the weapon and return pointer
+		return GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+	}
+	return nullptr;
+}
+
+void ANTTDCharacter::EquipWeapon(AWeapon* WeaponToEquip)
+{
+	if(WeaponToEquip)
+	{
+		//Get hand socket
+		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
+		
+		if(HandSocket)
+		{
+			//Attach the weapon to the hand socket RightHandSocket
+			HandSocket->AttachActor(WeaponToEquip, GetMesh());
+		}
+		//Set equipped weapon to the newly spawned default weapon 
+		EquippedWeapon = WeaponToEquip;
+		EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
+		
+	}
+}
+
+void ANTTDCharacter::DropWeapon()
+{
+	//check for inventory also (planned feature)
+	if(EquippedWeapon)
+	{
+		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
+		EquippedWeapon->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
+
+		EquippedWeapon->SetItemState(EItemState::EIS_Falling);
+		EquippedWeapon->ThrowWeapon();
+	}
+}
+
+void ANTTDCharacter::SwapWeapon(AWeapon* WeaponToSwap)
+{
+	DropWeapon();
+	EquipWeapon(WeaponToSwap);
+	TraceHitItem = nullptr;
+	TraceHitItemLastFrame = nullptr;
+}
+
+
+void ANTTDCharacter::IncrementOverlappedItemCount(int8 Amount)
+{
+	if(OverlappedItemCount + Amount <= 0)
+	{
+		OverlappedItemCount = 0;
+		bShouldTraceForItems = false;
+	}else
+	{
+		OverlappedItemCount += Amount;
+		bShouldTraceForItems = true;
+	}
+}
+
+void ANTTDCharacter::GetPickupItem(AItem* Item)
+{
+	if(Item->GetEquipSound())
+	{
+		UGameplayStatics::PlaySound2D(this, Item->GetEquipSound());
+	}
+	
+	auto Weapon = Cast<AWeapon>(Item);
+	if(Weapon)
+	{
+		SwapWeapon(Weapon);
 	}
 }
