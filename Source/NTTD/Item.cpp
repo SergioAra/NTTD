@@ -4,13 +4,11 @@
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
-//#include "Components/WidgetComponent.h"
 
 // Sets default values
 AItem::AItem():
 	ItemName(FString("Default")),
 	ItemCount(0),
-	ItemRarity(EItemRarity::EIR_Common),
 	bIsPlayerOverlapping(false),
 	ItemState(EItemState::EIS_Pickup),
 	//Item interp variables
@@ -37,8 +35,6 @@ AItem::AItem():
 	//set collision to block visibility channel
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 
-	//PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
-	//PickupWidget->SetupAttachment(GetRootComponent());
 
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(GetRootComponent());
@@ -49,19 +45,10 @@ void AItem::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//hide pickup widget on start
-	/*
-	if(PickupWidget)
-	{
-		PickupWidget->SetVisibility(false);
-	}
-*/
+
 	//Setup overlap for AreaSphere
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
 	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
-
-	//sets active stars array based on item rarity
-	SetActiveStars();
 
 	//Set item properties based on ItemState
 	SetItemProperties(ItemState);
@@ -93,33 +80,6 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	}
 }
 
-void AItem::SetActiveStars()
-{
-	
-	for(int32 i = 0; i<=5; i++)
-	{
-		ActiveStars.Add(false);
-	}
-
-	switch(ItemRarity)
-	{
-		case EItemRarity::EIR_Mythic:
-			ActiveStars[5] = true;
-		case EItemRarity::EIR_Legendary:
-			ActiveStars[4] = true;
-		case EItemRarity::EIR_Epic:
-			ActiveStars[3] = true;
-		case EItemRarity::EIR_Rare:
-			ActiveStars[2] = true;
-		case EItemRarity::EIR_Uncommon:
-			ActiveStars[1] = true;
-		case EItemRarity::EIR_Common:
-			ActiveStars[0] = true;
-		default:
-
-			break;
-	}
-}
 
 void AItem::SetItemProperties(EItemState State)
 {
@@ -144,7 +104,6 @@ void AItem::SetItemProperties(EItemState State)
 			break;
 		case EItemState::EIS_EquipInterping:
 		case EItemState::EIS_Equipped:
-			//PickupWidget->SetVisibility(false);
 			
 			ItemMesh->SetSimulatePhysics(false);
 			ItemMesh->SetEnableGravity(false);

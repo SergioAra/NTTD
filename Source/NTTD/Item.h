@@ -52,17 +52,11 @@ protected:
 	UFUNCTION()
 	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	//sets the activeStars array of bools based on rarity
-	void SetActiveStars();
-
 	//Sets properties of the item's components based on state
 	void SetItemProperties(EItemState State);
 
 	//Called when ItemInterpTimer is finished
 	void FinishInterping();
-
-	//Handles item interpolation when in the EquipInterping state
-	void ItemInterp(float DeltaTime);
 
 public:	
 	// Called every frame
@@ -78,10 +72,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* CollisionBox;
 	
-	//popup widget for when the player looks at the item
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	//class UWidgetComponent* PickupWidget;
-
 	//Enables item tracing when overlapped 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent * AreaSphere;
@@ -93,14 +83,6 @@ private:
 	//Item count
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	int32 ItemCount;
-
-	//Item rarity determines number of stars in pickup widget
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	EItemRarity ItemRarity;
-
-	//
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	TArray<bool> ActiveStars;
 	
 	//is the player overlapping with the item 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
@@ -160,7 +142,6 @@ private:
 	
 public:
 
-	//FORCEINLINE UWidgetComponent* GetPickupWidget() const {return PickupWidget;}
 
 	FORCEINLINE bool IsPlayerOverlapping() const {return bIsPlayerOverlapping;}
 
