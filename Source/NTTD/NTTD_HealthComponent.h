@@ -48,7 +48,7 @@ public:
 	UNTTD_HealthComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "State")
-	bool IsDead() const { return bIsDead; };
+	bool GetIsDead() const { return bIsDead; };
 
 	float GetCurrentHealth() { return CurrentHealth; };
 

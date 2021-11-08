@@ -20,10 +20,15 @@ enum class ECombatState: uint8
 
 class AWeapon;// delete later
 class AItem; //delete later
+class UNTTD_HealthComponent;
 UCLASS(Blueprintable)
 class ANTTDCharacter : public ACharacter
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UNTTD_HealthComponent* MyHealthComponent;
 
 protected:
 
