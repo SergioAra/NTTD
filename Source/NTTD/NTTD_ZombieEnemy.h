@@ -10,6 +10,7 @@ class UAnimMontage;
 class UNTTD_HealthComponent;
 class AController;
 class UCapsuleComponent;
+class UAnimInstance;
 
 UCLASS()
 class NTTD_API ANTTD_ZombieEnemy : public ACharacter
@@ -36,6 +37,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 	bool bIsDead;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Attack")
+	bool bIsAttacking;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attack", meta = (ClampMin = 0.0f))
+	float DamageToApply;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "State", meta = (ClampMin = 0.1f, ClampMax = 1.0f))
 	float HeavilyDamagedRatio;
 
@@ -45,20 +52,26 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack")
 	FName LeftHandAttackSocketName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
-	UAnimMontage* NormalAttackRightArm;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
+	TSubclassOf<UDamageType> MyDamageType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
-	UAnimMontage* NormalAttackLeftArm;
+	UAnimMontage* NormalAttackRightArmMontage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
-	UAnimMontage* HeavilyDamagedAttackRightArm;
+	UAnimMontage* NormalAttackLeftArmMontage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
-	UAnimMontage* HeavilyDamagedAttackLeftArm;
+	UAnimMontage* HeavilyDamagedAttackRightArmMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* HeavilyDamagedAttackLeftArmMontage;
 
 	UPROPERTY(BlueprintReadOnly, Category = "AI")
 	AController* MyController;
+
+	UAnimInstance* MyAnimInstance;
+
 
 public:
 	// Sets default values for this character's properties
@@ -74,8 +87,17 @@ protected:
 	UFUNCTION()
 	void Death(AActor* DamageCauser);
 
+	UFUNCTION()
+	void OnHealthChange(UNTTD_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnHealthChange(UNTTD_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_Death();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayMontage(UAnimMontage* MontageToPlay);
 
 public:	
 	// Called every frame
@@ -86,5 +108,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsHeavilyDamaged() { return bIsHeavilyDamaged; };
+
+	UFUNCTION(BlueprintCallable)
+	void Attack();
+
+	UFUNCTION(BlueprintCallable)
+	void MakeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void SetRightHandColliderCollision(ECollisionEnabled::Type NewCollisionState);
+
+	void SetLeftHandColliderCollision(ECollisionEnabled::Type NewCollisionState);
 
 };

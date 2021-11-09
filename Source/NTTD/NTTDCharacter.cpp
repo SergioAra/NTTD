@@ -15,6 +15,7 @@
 #include "Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
+#include "NTTD_HealthComponent.h"
 #include "Sound/SoundCue.h"
 
 ANTTDCharacter::ANTTDCharacter() :
@@ -63,6 +64,8 @@ ANTTDCharacter::ANTTDCharacter() :
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	MyHealthComponent = CreateDefaultSubobject<UNTTD_HealthComponent>(TEXT("MyHealthComponent"));
 }
 
 void ANTTDCharacter::Tick(float DeltaSeconds)

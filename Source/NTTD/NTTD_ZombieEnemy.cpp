@@ -6,6 +6,8 @@
 #include "Components/CapsuleComponent.h"
 #include "NTTD_ZombieEnemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "NTTDCharacter.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/Controller.h"
 
 // Sets default values
@@ -13,6 +15,9 @@ ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	RightHandAttackSocketName = "RightHandAttackSocket";
+	LeftHandAttackSocketName = "LeftHandAttackSocket";
 
 	MyHealthComponent = CreateDefaultSubobject<UNTTD_HealthComponent>(TEXT("MyHealthComponent"));
 
@@ -29,10 +34,9 @@ ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
 	LeftHandCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	bIsHeavilyDamaged = false;
+	bIsAttacking = false;
 	HeavilyDamagedRatio = 0.3f;
-
-	RightHandAttackSocketName = "RightHandAttackSocket";
-	LeftHandAttackSocketName = "LeftHandAttackSocket";
+	DamageToApply = 25.0f;
 
 }
 
@@ -45,21 +49,25 @@ void ANTTD_ZombieEnemy::BeginPlay()
 	{
 		MyHealthComponent->OnHealthUpdateDelegate.AddDynamic(this, &ANTTD_ZombieEnemy::CheckIfZombieIsHeavilyDamaged);
 		MyHealthComponent->OnDeadDelegate.AddDynamic(this, &ANTTD_ZombieEnemy::Death);
+		MyHealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ANTTD_ZombieEnemy::OnHealthChange);
 	}
 
-	/*
 	if (IsValid(RightHandCollider))
 	{
-
+		RightHandCollider->OnComponentBeginOverlap.AddDynamic(this, &ANTTD_ZombieEnemy::MakeDamage);
 	}
 
 	if (IsValid(LeftHandCollider))
 	{
-
+		LeftHandCollider->OnComponentBeginOverlap.AddDynamic(this, &ANTTD_ZombieEnemy::MakeDamage);
 	}
-	*/
 
 	MyController = GetController();
+
+	if (IsValid(GetMesh()))
+	{
+		MyAnimInstance = GetMesh()->GetAnimInstance();
+	}
 	
 }
 
@@ -94,6 +102,11 @@ void ANTTD_ZombieEnemy::Death(AActor* DamageCauser)
 	}
 }
 
+void ANTTD_ZombieEnemy::OnHealthChange(UNTTD_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	BP_OnHealthChange(CurrentHealthComponent, DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
+}
+
 // Called every frame
 void ANTTD_ZombieEnemy::Tick(float DeltaTime)
 {
@@ -106,5 +119,75 @@ void ANTTD_ZombieEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ANTTD_ZombieEnemy::Attack()
+{
+	if (!bIsAttacking)
+	{
+		bIsAttacking = true;
+		int selector = FMath::RandRange(0, 1);
+		if (bIsHeavilyDamaged)
+		{
+			if (selector == 0)
+			{
+				if (IsValid(HeavilyDamagedAttackRightArmMontage) && IsValid(MyAnimInstance))
+				{
+					MyAnimInstance->Montage_Play(HeavilyDamagedAttackRightArmMontage, 1.0f);
+					bIsAttacking = false;
+				}
+			}
+			else
+			{
+				if (IsValid(HeavilyDamagedAttackLeftArmMontage) && IsValid(MyAnimInstance))
+				{
+					MyAnimInstance->Montage_Play(HeavilyDamagedAttackLeftArmMontage, 1.0f);
+					bIsAttacking = false;
+				}
+			}
+		}
+		else
+		{
+			if (selector == 0)
+			{
+				if (IsValid(NormalAttackRightArmMontage) && IsValid(MyAnimInstance))
+				{
+					MyAnimInstance->Montage_Play(NormalAttackRightArmMontage, 1.0f);
+					bIsAttacking = false;
+				}
+			}
+			else
+			{
+				if (IsValid(NormalAttackLeftArmMontage) && IsValid(MyAnimInstance))
+				{
+					MyAnimInstance->Montage_Play(NormalAttackLeftArmMontage, 1.0f);
+					bIsAttacking = false;
+				}
+			}
+
+		}
+	}
+}
+
+void ANTTD_ZombieEnemy::MakeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (IsValid(OtherActor))
+	{
+		ANTTDCharacter* PossiblePlayer = Cast<ANTTDCharacter>(OtherActor);
+		if (IsValid(PossiblePlayer))
+		{
+			UGameplayStatics::ApplyDamage(PossiblePlayer, DamageToApply, MyController, this, MyDamageType);
+		}
+	}
+}
+
+void ANTTD_ZombieEnemy::SetRightHandColliderCollision(ECollisionEnabled::Type NewCollisionState)
+{
+	RightHandCollider->SetCollisionEnabled(NewCollisionState);
+}
+
+void ANTTD_ZombieEnemy::SetLeftHandColliderCollision(ECollisionEnabled::Type NewCollisionState)
+{
+	LeftHandCollider->SetCollisionEnabled(NewCollisionState);
 }
 
