@@ -11,6 +11,7 @@ class UNTTD_HealthComponent;
 class AController;
 class UCapsuleComponent;
 class UAnimInstance;
+class UWidgetComponent;
 
 UCLASS()
 class NTTD_API ANTTD_ZombieEnemy : public ACharacter
@@ -27,6 +28,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCapsuleComponent* LeftHandCollider;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UWidgetComponent* WidgetHealthBarComponent;
 
 protected:
 	//Variables

@@ -9,6 +9,7 @@
 #include "NTTDCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Controller.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
@@ -32,6 +33,10 @@ ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
 	LeftHandCollider->SetCollisionResponseToAllChannels(ECR_Ignore);
 	LeftHandCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Overlap);
 	LeftHandCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	WidgetHealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetHealthBarComponent"));
+	WidgetHealthBarComponent->SetupAttachment(RootComponent);
+	WidgetHealthBarComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	bIsHeavilyDamaged = false;
 	bIsAttacking = false;
