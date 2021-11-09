@@ -29,8 +29,9 @@ class ANTTDCharacter : public ACharacter
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UNTTD_HealthComponent* MyHealthComponent;
-
-protected:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
+	TSubclassOf<UDamageType> MyDamageType;
 
 	//----------------------------------------------------------------------
 
@@ -70,6 +71,10 @@ protected:
 
 	//Checks to see if we have ammo of the equipped weapon ammo type
 	bool CarryingAmmo();
+
+	UFUNCTION(BlueprintCallable)
+	void MakeDamage(AActor* OtherActor);
+
 	
 public:
 

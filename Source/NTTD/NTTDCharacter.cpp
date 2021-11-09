@@ -17,6 +17,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
 #include "NTTD_HealthComponent.h"
+#include "NTTD_ZombieEnemy.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 
@@ -226,12 +227,6 @@ void ANTTDCharacter::PlayGunFireMontage()
 
 bool ANTTDCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
 {
-	//check for crosshair trace hit
-	FHitResult CrosshairHitResult;
-
-	//traces from crosshair to world, returns true if hit (outbeamlocation is hit location), returns false if no hit (outbeamlocation is linetrace end)
-	//bool bCrosshairHit = TraceUnderCrosshairs(CrosshairHitResult, OutBeamLocation);
-
 	
 	FHitResult Hit;
 	APlayerController* TraceController = Cast<APlayerController>(GetController());
@@ -252,7 +247,9 @@ bool ANTTDCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVe
 	//object between barrel and BeamEndpoint?
 	if (WeaponTraceHit.bBlockingHit)
 	{
-		OutBeamLocation = FVector(WeaponTraceHit.Location.X,WeaponTraceHit.Location.Y,MuzzleSocketLocation.Z);;
+		OutBeamLocation = FVector(WeaponTraceHit.Location.X,WeaponTraceHit.Location.Y,MuzzleSocketLocation.Z);
+		
+		MakeDamage(WeaponTraceHit.Actor.Get());
 		return true;
 	}
 	OutBeamLocation = FVector(Hit.ImpactPoint.X,Hit.ImpactPoint.Y,MuzzleSocketLocation.Z);
@@ -323,6 +320,18 @@ bool ANTTDCharacter::CarryingAmmo()
 	if(EquippedWeapon == nullptr) return false;
 
 		return Ammo > 0;
+}
+
+void ANTTDCharacter::MakeDamage(AActor* OtherActor)
+{
+	if (IsValid(OtherActor))
+	{
+		ANTTD_ZombieEnemy* PossibleEnemy = Cast<ANTTD_ZombieEnemy>(OtherActor);
+		if (IsValid(PossibleEnemy))
+		{
+			UGameplayStatics::ApplyDamage(PossibleEnemy, EquippedWeapon->GetDamageToApply(), GetController(), this, MyDamageType);
+		}
+	}
 }
 
 void ANTTDCharacter::DropWeapon()

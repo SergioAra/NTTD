@@ -35,7 +35,7 @@ public:
 
 	bool ClipIsFull();
 
-
+	FORCEINLINE float GetDamageToApply() const {return DamageToApply;}
 
 
 	//----------------------------------------------------------------------
@@ -43,6 +43,9 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 protected:
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attack", meta = (ClampMin = 0.0f))
+	float DamageToApply;
 
 	//----------------------------------------------------------------------
 	void StopFalling();
@@ -72,6 +75,8 @@ private:
 	//Name for the clip bone
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	FName ClipBoneName;
+
+	
 	
 	//----------------------------------------------------------------------
 	

@@ -8,7 +8,8 @@ AWeapon::AWeapon():
 	Ammo(3000),
 	MagazineCapacity(30),
 	ReloadMontageSection(TEXT("Reload SMG")),
-	ClipBoneName(TEXT("smg_clip"))
+	ClipBoneName(TEXT("smg_clip")),
+	DamageToApply(25.f)
 {
 	//Allows actor to tick
 	PrimaryActorTick.bCanEverTick = true;

@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NTTDCharacter.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Controller.h"
 #include "Components/WidgetComponent.h"
@@ -36,6 +37,13 @@ ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
 	WidgetHealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetHealthBarComponent"));
 	WidgetHealthBarComponent->SetupAttachment(RootComponent);
 	WidgetHealthBarComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+	CollisionBox->SetupAttachment(GetMesh());
+	//block collision to all channels
+	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	//set collision to block visibility channel
+	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 
 	bIsHeavilyDamaged = false;
 	bIsAttacking = false;

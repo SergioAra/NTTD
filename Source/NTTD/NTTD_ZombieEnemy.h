@@ -35,7 +35,7 @@ protected:
 protected:
 	//Variables
 
-	UPROPERTY(BlueprintReadOnly, Category = "State")
+	UPROPERTY(BlueprintReadWrite, Category = "State")
 	bool bIsHeavilyDamaged;
 
 	UPROPERTY(BlueprintReadOnly, Category = "State")
@@ -76,6 +76,10 @@ protected:
 
 	UAnimInstance* MyAnimInstance;
 
+	//Line trace collides with box to hit enemy
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
+	class UBoxComponent* CollisionBox;
+
 
 public:
 	// Sets default values for this character's properties
@@ -102,6 +106,8 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_PlayMontage(UAnimMontage* MontageToPlay);
+
+
 
 public:	
 	// Called every frame
