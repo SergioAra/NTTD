@@ -16,11 +16,8 @@
 #include "Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
-<<<<<<< Updated upstream
 #include "NTTD_HealthComponent.h"
-=======
 #include "Particles/ParticleSystemComponent.h"
->>>>>>> Stashed changes
 #include "Sound/SoundCue.h"
 
 ANTTDCharacter::ANTTDCharacter() :
