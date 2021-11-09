@@ -13,6 +13,9 @@ class ANTTDPlayerController : public APlayerController
 
 public:
 	ANTTDPlayerController();
+	
+	FORCEINLINE uint32 BMoveToMouseCursor() const {return bMoveToMouseCursor;}
+	FORCEINLINE uint32 BLockAim() const {return bLockAim;}
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
@@ -51,6 +54,8 @@ protected:
 	/** Input handlers for LockAim action. */
 	void OnLockAimPressed();
 	void OnLockAimReleased();
+
+	void FireWeapon();
 };
 
 

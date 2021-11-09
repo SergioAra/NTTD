@@ -19,6 +19,8 @@ void ANTTDPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	FHitResult Hit;
+
+
 	if(bLockAim)
 	{
 		if(TraceMouseCursor(Hit))
@@ -150,6 +152,8 @@ void ANTTDPlayerController::OnSetDestinationPressed()
 {
 	// set flag to keep updating destination until released
 	bMoveToMouseCursor = true;
+	if(bLockAim)
+		FireWeapon();
 }
 
 void ANTTDPlayerController::OnSetDestinationReleased()
@@ -168,4 +172,13 @@ void ANTTDPlayerController::OnLockAimReleased()
 {
 	//clear flag to allow player to move again
 	bLockAim = false;
+}
+
+void ANTTDPlayerController::FireWeapon()
+{
+	ANTTDCharacter* const MyNTTDCharacter = Cast<ANTTDCharacter>(GetPawn()) ;
+	if (MyNTTDCharacter)
+	{
+		MyNTTDCharacter->FireWeapon();
+	}
 }

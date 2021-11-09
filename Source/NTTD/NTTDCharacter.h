@@ -48,6 +48,28 @@ protected:
 
 	//takes a weapon and attaches it to the mesh
 	void EquipWeapon(class AWeapon* WeaponToEquip);
+
+	//check to make sure our weapon has ammo
+	bool WeaponHasAmmo();
+
+	//FireWeapon functions
+	void PlayFireSound();
+	void SendBullet();
+	void PlayGunFireMontage();
+
+	//Called internally to get the end location of a beam, used for shooting
+	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
+
+	//line trace for items under the crosshairs
+	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
+
+	void StartFireTimer();
+
+	UFUNCTION()
+	void AutoFireReset();
+
+	//Checks to see if we have ammo of the equipped weapon ammo type
+	bool CarryingAmmo();
 	
 public:
 
@@ -70,6 +92,13 @@ public:
 
 	//Get picked up item
 	void GetPickupItem(AItem* Item);
+
+	//Called when the fire button is pressed
+	void FireWeapon();
+
+	//Handle reloading the weapon
+	void ReloadWeapon();
+
 
 
 private:
@@ -107,6 +136,41 @@ private:
 	//Set this in blueprints for the default weapon class
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true") )
 	TSubclassOf<AWeapon> DefaultWeaponClass;
+
+	//randomized gunshot sound cue
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class USoundCue* FireSound;
+
+	//flash spawned at barrel socket
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* MuzzleFlash;
+
+	//particles spawned upon bullet impact
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* ImpactParticles;
+
+	//smoke trail for bullets
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* BeamParticles;
+
+	//Montage for firing the weapon
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* HipFireMontage;
+
+	//sets a timer between automatic gunshots
+	FTimerHandle AutoFireTimer;
+	
+	//rate of fire
+	float AutomaticFireRate;
+
+	//map to keep track of ammo of the different ammo types
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	int32 Ammo;
+
+	//Montage for reload animation
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* ReloadMontage;
+
 
 	//----------------------------------------------------------------------
 };

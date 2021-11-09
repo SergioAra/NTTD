@@ -12,16 +12,31 @@
 #include "Materials/Material.h"
 #include "Engine/World.h"
 #include "Item.h"
+#include "NTTDPlayerController.h"
 #include "Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
+<<<<<<< Updated upstream
 #include "NTTD_HealthComponent.h"
+=======
+#include "Particles/ParticleSystemComponent.h"
+>>>>>>> Stashed changes
 #include "Sound/SoundCue.h"
 
 ANTTDCharacter::ANTTDCharacter() :
 	//item trace variables
 	bShouldTraceForItems(false),
-	OverlappedItemCount(0)
+	OverlappedItemCount(0),
+
+	//automatic gun fire rate (must be greater than ShootTimeDuration)
+	AutomaticFireRate(0.1f),
+
+	//ammo amount variable
+	Ammo(30)
+
+
+
+
 {
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -140,6 +155,179 @@ void ANTTDCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 	}
 }
 
+bool ANTTDCharacter::WeaponHasAmmo()
+{
+	if(EquippedWeapon == nullptr) return false;
+
+	return EquippedWeapon->GetAmmo() > 0;
+}
+
+void ANTTDCharacter::PlayFireSound()
+{
+	//Play the sound of the object:
+	//if there is a valid sound pointer
+	if (FireSound)
+	{
+		//play the sound in object
+		UGameplayStatics::PlaySound2D(this,FireSound);
+	}	
+}
+
+void ANTTDCharacter::SendBullet()
+{
+	//Send bullet:
+	//find socket to attach particles
+	const USkeletalMeshSocket* BarrelSocket = EquippedWeapon->GetItemMesh()->GetSocketByName("BarrelSocket");
+
+	//if there is a valid socket
+	if (BarrelSocket)
+	{
+		//find transform of socket
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(EquippedWeapon->GetItemMesh());
+
+		//if there is a valid particle
+		if (MuzzleFlash)
+		{
+			//spawn particles in socket
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
+		}
+
+		FVector BeamEnd;
+		bool bBeamEnd = GetBeamEndLocation(SocketTransform.GetLocation(), BeamEnd);
+		
+		//spawn impact particles after updating BeamEndPoint
+		if (ImpactParticles)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamEnd);
+		}
+
+		if (BeamParticles)
+		{
+			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
+			if (Beam)
+			{
+				Beam->SetVectorParameter(FName("Target"), BeamEnd);
+			}
+		}
+	}
+}
+
+void ANTTDCharacter::PlayGunFireMontage()
+{
+	//Play fire montage:
+	//find anim instance from mesh
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	//if there is a valid anim instance and a valid montage
+	if (AnimInstance && HipFireMontage)
+	{
+		//play montage
+		AnimInstance->Montage_Play(HipFireMontage);
+		//from selected section
+		AnimInstance->Montage_JumpToSection(FName("StartFire"));
+	}
+}
+
+bool ANTTDCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
+{
+	//check for crosshair trace hit
+	FHitResult CrosshairHitResult;
+
+	//traces from crosshair to world, returns true if hit (outbeamlocation is hit location), returns false if no hit (outbeamlocation is linetrace end)
+	//bool bCrosshairHit = TraceUnderCrosshairs(CrosshairHitResult, OutBeamLocation);
+
+	
+	FHitResult Hit;
+	APlayerController* TraceController = Cast<APlayerController>(GetController());
+	TraceController->GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+	if(Hit.bBlockingHit)
+	{
+		OutBeamLocation = FVector(Hit.ImpactPoint.X,Hit.ImpactPoint.Y,MuzzleSocketLocation.Z);
+	}
+	
+	//Perform a second trace: from the gun barrel
+
+	FHitResult WeaponTraceHit;
+	const FVector WeaponTraceStart{ MuzzleSocketLocation };
+	const FVector StartToEnd{OutBeamLocation - MuzzleSocketLocation};
+	const FVector WeaponTraceEnd{ MuzzleSocketLocation + StartToEnd *300};
+	GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECollisionChannel::ECC_Visibility);
+
+	//object between barrel and BeamEndpoint?
+	if (WeaponTraceHit.bBlockingHit)
+	{
+		OutBeamLocation = FVector(WeaponTraceHit.Location.X,WeaponTraceHit.Location.Y,MuzzleSocketLocation.Z);;
+		return true;
+	}
+	OutBeamLocation = FVector(Hit.ImpactPoint.X,Hit.ImpactPoint.Y,MuzzleSocketLocation.Z);
+	return false;
+}
+
+bool ANTTDCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation)
+{
+	//get current size of the viewport
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		//fill ViewportSize with data
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	//get crosshair location according to what was specified in the blueprint
+	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldDirection;
+
+	//fill variables with the crosshair's world position and direciton
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrosshairLocation, CrosshairWorldPosition, CrosshairWorldDirection);
+
+	if(bScreenToWorld)
+	{
+		//trace from crosshair world location outward
+		const FVector Start{CrosshairWorldPosition};
+		const FVector End {Start + CrosshairWorldDirection * 50000.f};
+		
+		// OutBeamLocation is the end location for the line trace until there is a hit
+		OutHitLocation = End;
+		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+
+		//if there was a crosshair hit
+		if(OutHitResult.bBlockingHit)
+		{
+			// tentative beam location - still need to trace from gun afterwards
+			OutHitLocation = OutHitResult.Location;
+			return true;
+		}
+	}
+	return false;
+}
+
+void ANTTDCharacter::StartFireTimer()
+{
+	GetWorldTimerManager().SetTimer(AutoFireTimer, this, &ANTTDCharacter::AutoFireReset, AutomaticFireRate);
+}
+
+void ANTTDCharacter::AutoFireReset()
+{
+	if(WeaponHasAmmo())
+	{
+		ANTTDPlayerController* const PlayerController = CastChecked<ANTTDPlayerController>(Controller);
+		if (PlayerController->BMoveToMouseCursor() && PlayerController->BLockAim())
+		{
+			FireWeapon();
+		}
+	}else
+	{
+		ReloadWeapon();
+	}
+}
+
+bool ANTTDCharacter::CarryingAmmo()
+{
+	if(EquippedWeapon == nullptr) return false;
+
+		return Ammo > 0;
+}
+
 void ANTTDCharacter::DropWeapon()
 {
 	//check for inventory also (planned feature)
@@ -186,5 +374,37 @@ void ANTTDCharacter::GetPickupItem(AItem* Item)
 	if(Weapon)
 	{
 		SwapWeapon(Weapon);
+	}
+}
+
+void ANTTDCharacter::FireWeapon()
+{
+	if(EquippedWeapon == nullptr) return;
+	if(WeaponHasAmmo())
+	{
+		PlayFireSound();
+		SendBullet();
+		PlayGunFireMontage();
+
+		//subtract 1 from the weapon's ammo
+		EquippedWeapon->DecrementAmmo();
+
+		StartFireTimer();
+	}
+}
+
+void ANTTDCharacter::ReloadWeapon()
+{
+	if(EquippedWeapon == nullptr) return;
+
+	// Do we have enough ammo of the correct type and the clip is not full
+	if(CarryingAmmo() && !EquippedWeapon->ClipIsFull())
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if(ReloadMontage && AnimInstance)
+		{
+			AnimInstance->Montage_Play(ReloadMontage);
+			AnimInstance->Montage_JumpToSection(EquippedWeapon->GetReloadMontageSection());
+		}
 	}
 }
