@@ -51,6 +51,9 @@ void ANTTDPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Select", IE_Pressed, this, &ANTTDPlayerController::SelectButtonPressed);
 	InputComponent->BindAction("Select", IE_Released, this, &ANTTDPlayerController::SelectButtonReleased);
 
+	InputComponent->BindAction("Reload", IE_Pressed, this, &ANTTDPlayerController::ReloadButtonPressed);
+	InputComponent->BindAction("Reload", IE_Released, this, &ANTTDPlayerController::ReloadButtonReleased);
+
 	// support touch devices 
 	//InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ANTTDPlayerController::MoveToTouchLocation);
 	//InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ANTTDPlayerController::MoveToTouchLocation);
@@ -206,5 +209,19 @@ void ANTTDPlayerController::SelectButtonPressed()
 }
 
 void ANTTDPlayerController::SelectButtonReleased()
+{
+}
+
+void ANTTDPlayerController::ReloadButtonPressed()
+{
+	ANTTDCharacter* const MyNTTDCharacter = Cast<ANTTDCharacter>(GetPawn());
+	if(MyNTTDCharacter)
+	{
+		MyNTTDCharacter->ReloadWeapon();
+	}
+	
+}
+
+void ANTTDPlayerController::ReloadButtonReleased()
 {
 }

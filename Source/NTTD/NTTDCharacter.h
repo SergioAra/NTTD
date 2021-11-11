@@ -80,6 +80,9 @@ protected:
 	//Trace for items if OverlappedItemCount > 0
 	void TraceForItems();
 
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
+
 	
 public:
 

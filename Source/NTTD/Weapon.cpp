@@ -5,7 +5,7 @@
 AWeapon::AWeapon():
 	ThrowWeaponTime(0.7f),
 	bFalling(false),
-	Ammo(3000),
+	Ammo(30),
 	MagazineCapacity(30),
 	ReloadMontageSection(TEXT("Reload SMG")),
 	ClipBoneName(TEXT("smg_clip")),

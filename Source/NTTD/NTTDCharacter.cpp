@@ -422,9 +422,29 @@ void ANTTDCharacter::ReloadWeapon()
 	{
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if(ReloadMontage && AnimInstance)
-		{
+		{	
 			AnimInstance->Montage_Play(ReloadMontage);
 			AnimInstance->Montage_JumpToSection(EquippedWeapon->GetReloadMontageSection());
 		}
 	}
+}
+
+void ANTTDCharacter::FinishReloading()
+{
+	if(EquippedWeapon == nullptr) return;
+	
+	//Space left in the magazine of EquippedWeapon when reloading
+	const int32 MagEmptySpace = EquippedWeapon->GetMagazineCapacity() - EquippedWeapon->GetAmmo();
+
+	if(MagEmptySpace > AmmoCount)
+	{
+		//Reload the magazine with all the ammo available
+		EquippedWeapon->ReloadAmmo(AmmoCount);
+		AmmoCount = 0;
+	}else
+		{
+			//Reload the magazine with the required bullets to fill it
+			EquippedWeapon->ReloadAmmo(MagEmptySpace);
+			AmmoCount -= MagEmptySpace;
+		}
 }

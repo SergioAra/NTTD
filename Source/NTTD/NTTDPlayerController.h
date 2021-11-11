@@ -59,6 +59,10 @@ protected:
 
 	void SelectButtonPressed();
 	void SelectButtonReleased();
+
+	void ReloadButtonPressed();
+	void ReloadButtonReleased();
+	
 };
 
 
