@@ -98,9 +98,11 @@ public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns CursorToWorld subobject **/
-	FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
+	FORCEINLINE class UDecalComponent* GetCursorToWorld() const { return CursorToWorld; }
 
-	FORCEINLINE AItem* GetTraceHitItem() {return TraceHitItem;}
+	FORCEINLINE AItem* GetTraceHitItem() const {return TraceHitItem;}
+
+	FORCEINLINE bool GetBReloading() const {return bReloading;}
 	
 	//Adds / substracts to/from Overlapped ItemCount and updates bShouldTrace for items
 	void IncrementOverlappedItemCount(int8 Amount);
@@ -185,6 +187,8 @@ private:
 	//Montage for reload animation
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* ReloadMontage;
+
+	bool bReloading;
 
 
 	//----------------------------------------------------------------------

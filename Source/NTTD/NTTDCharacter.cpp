@@ -32,7 +32,9 @@ ANTTDCharacter::ANTTDCharacter() :
 	AutomaticFireRate(0.1f),
 
 	//ammo amount variable
-	AmmoCount(30)
+	AmmoCount(30),
+
+	bReloading(false)
 
 
 
@@ -422,7 +424,8 @@ void ANTTDCharacter::ReloadWeapon()
 	{
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if(ReloadMontage && AnimInstance)
-		{	
+		{
+			bReloading = true;
 			AnimInstance->Montage_Play(ReloadMontage);
 			AnimInstance->Montage_JumpToSection(EquippedWeapon->GetReloadMontageSection());
 		}
@@ -431,6 +434,7 @@ void ANTTDCharacter::ReloadWeapon()
 
 void ANTTDCharacter::FinishReloading()
 {
+	bReloading = false;
 	if(EquippedWeapon == nullptr) return;
 	
 	//Space left in the magazine of EquippedWeapon when reloading

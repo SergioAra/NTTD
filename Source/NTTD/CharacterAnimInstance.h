@@ -25,9 +25,12 @@ public:
 	//override function for AnimInstance class, analog to the BeginPlay in actor
 	virtual void NativeInitializeAnimation() override;
 
-	protected:
+protected:
 	//Handle turning in place variables
 	void TurnInPlace();
+	
+	//Update recoil weight 
+	void UpdateRecoilWeight();
 
 	
 private:
@@ -78,5 +81,10 @@ private:
 	//True when turning in place
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	bool bTurningInPlace;
+
+	//Change the Recoil Weight based on turn in place and aiming
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float RecoilWeight;
+
 	
 };

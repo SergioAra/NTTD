@@ -17,7 +17,8 @@ UCharacterAnimInstance::UCharacterAnimInstance():
 	bReloading(false),
 	CharacterRotation(FRotator(0.f)),
 	CharacterRotationLastFrame(FRotator(0.f)),
-	bTurningInPlace(false)
+	bTurningInPlace(false),
+	RecoilWeight(0.5)
 {
 	
 }
@@ -48,9 +49,13 @@ void UCharacterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		FRotator AimRotation = NTTDCharacter->GetBaseAimRotation();
 		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(NTTDCharacter->GetVelocity());
 		
+		bReloading = NTTDCharacter->GetBReloading();
+		
 	}
 	
 	//TurnInPlace();
+
+	UpdateRecoilWeight();
 }
 
 void UCharacterAnimInstance::NativeInitializeAnimation()
@@ -113,6 +118,18 @@ void UCharacterAnimInstance::TurnInPlace()
 		
 	}
 	
+}
+
+void UCharacterAnimInstance::UpdateRecoilWeight()
+{
+	if(bReloading)
+	{
+		RecoilWeight = 1.f;
+	}
+	else
+	{
+		RecoilWeight = 0.2f;
+	}
 }
 
 
