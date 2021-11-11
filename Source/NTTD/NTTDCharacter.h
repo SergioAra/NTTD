@@ -62,7 +62,7 @@ protected:
 	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
 
 	//line trace for items under the crosshairs
-	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
+	bool TraceUnderCrosshairs(FHitResult& Hit, FVector& OutHitLocation);
 
 	void StartFireTimer();
 
@@ -74,6 +74,11 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void MakeDamage(AActor* OtherActor);
+	
+	void PickupAmmo(class AAmmo* Ammo);
+
+	//Trace for items if OverlappedItemCount > 0
+	void TraceForItems();
 
 	
 public:
@@ -91,6 +96,8 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns CursorToWorld subobject **/
 	FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
+
+	FORCEINLINE AItem* GetTraceHitItem() {return TraceHitItem;}
 	
 	//Adds / substracts to/from Overlapped ItemCount and updates bShouldTrace for items
 	void IncrementOverlappedItemCount(int8 Amount);
@@ -170,7 +177,7 @@ private:
 
 	//map to keep track of ammo of the different ammo types
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
-	int32 Ammo;
+	int32 AmmoCount;
 
 	//Montage for reload animation
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))

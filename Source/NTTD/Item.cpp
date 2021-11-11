@@ -14,7 +14,6 @@ AItem::AItem():
 	//Item interp variables
 	IntemInterpStartLocation(FVector(0.f)),
 	CameraTargetLocation(FVector(0.f)),
-	bInterping(false),
 	ZCurveTime(0.7f),
 	ItemInterpX(0.f),
 	ItemInterpY(0.f),
@@ -138,15 +137,6 @@ void AItem::SetItemProperties(EItemState State)
 		default:
 
 			break;
-	}
-}
-
-void AItem::FinishInterping()
-{
-	bInterping = false;
-	if(Character)
-	{
-		Character->GetPickupItem(this);
 	}
 }
 

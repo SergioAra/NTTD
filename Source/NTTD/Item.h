@@ -53,10 +53,8 @@ protected:
 	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	//Sets properties of the item's components based on state
-	void SetItemProperties(EItemState State);
+	virtual void SetItemProperties(EItemState State);
 
-	//Called when ItemInterpTimer is finished
-	void FinishInterping();
 
 public:	
 	// Called every frame
@@ -103,10 +101,7 @@ private:
 	//target interp location in front of the camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	FVector CameraTargetLocation;
-
-	//true when interping
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	bool bInterping;
+	
 
 	//Plays when we start interping
 	FTimerHandle ItemInterpTimer;
@@ -130,10 +125,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class UCurveFloat* ItemScaleCurve;
 
-	//Sound played when item is picked up
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	class USoundCue* PickupSound;
-
 	//Sound played when item is equipped 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class USoundCue* EquipSound;
@@ -155,7 +146,7 @@ public:
 
 	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const {return ItemMesh;}
 
-	FORCEINLINE USoundCue* GetPickupSound() const {return PickupSound;}
-
 	FORCEINLINE USoundCue* GetEquipSound() const {return EquipSound;}
+	
+	FORCEINLINE int32 GetItemCount() const {return ItemCount;}
 };

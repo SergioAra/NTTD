@@ -56,6 +56,9 @@ protected:
 	void OnLockAimReleased();
 
 	void FireWeapon();
+
+	void SelectButtonPressed();
+	void SelectButtonReleased();
 };
 
 

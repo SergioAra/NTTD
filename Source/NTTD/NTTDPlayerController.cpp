@@ -4,8 +4,11 @@
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 //#include "HeadMountedDisplayFunctionLibrary.h"
+#include "Item.h"
 #include "NTTDCharacter.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Sound/SoundCue.h"
 //#include "Engine/World.h"
 
 ANTTDPlayerController::ANTTDPlayerController()
@@ -44,6 +47,9 @@ void ANTTDPlayerController::SetupInputComponent()
 	
 	InputComponent->BindAction("LockAim", IE_Pressed, this, &ANTTDPlayerController::OnLockAimPressed);
 	InputComponent->BindAction("LockAim", IE_Released, this, &ANTTDPlayerController::OnLockAimReleased);
+
+	InputComponent->BindAction("Select", IE_Pressed, this, &ANTTDPlayerController::SelectButtonPressed);
+	InputComponent->BindAction("Select", IE_Released, this, &ANTTDPlayerController::SelectButtonReleased);
 
 	// support touch devices 
 	//InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ANTTDPlayerController::MoveToTouchLocation);
@@ -181,4 +187,24 @@ void ANTTDPlayerController::FireWeapon()
 	{
 		MyNTTDCharacter->FireWeapon();
 	}
+}
+
+void ANTTDPlayerController::SelectButtonPressed()
+{
+	ANTTDCharacter* const MyNTTDCharacter = Cast<ANTTDCharacter>(GetPawn());
+	if(MyNTTDCharacter)
+	{
+		//check if traced item is valid and player is overlapping the AreaSphere to pickup the item, prevents picking up an item that is not overlapped
+		AItem* TraceHitItem = MyNTTDCharacter->GetTraceHitItem();
+		if(TraceHitItem && TraceHitItem->IsPlayerOverlapping())
+		{
+			MyNTTDCharacter->GetPickupItem(TraceHitItem);
+			
+		}
+	}
+
+}
+
+void ANTTDPlayerController::SelectButtonReleased()
+{
 }

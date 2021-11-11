@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "NTTDCharacter.h"
+
+#include "Ammo.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -30,7 +32,7 @@ ANTTDCharacter::ANTTDCharacter() :
 	AutomaticFireRate(0.1f),
 
 	//ammo amount variable
-	Ammo(30)
+	AmmoCount(30)
 
 
 
@@ -109,6 +111,8 @@ void ANTTDCharacter::Tick(float DeltaSeconds)
 			FRotator CursorR = CursorFV.Rotation();
 			CursorToWorld->SetWorldLocation(TraceHitResult.Location);
 			CursorToWorld->SetWorldRotation(CursorR);
+			//Check OverlappedItemCount and trace for items if allowed 
+			TraceForItems();
 		}
 	}
 }
@@ -229,9 +233,8 @@ bool ANTTDCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVe
 {
 	
 	FHitResult Hit;
-	APlayerController* TraceController = Cast<APlayerController>(GetController());
-	TraceController->GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-	if(Hit.bBlockingHit)
+	bool bCrosshairHit =TraceUnderCrosshairs(Hit, OutBeamLocation);
+	if(bCrosshairHit)
 	{
 		OutBeamLocation = FVector(Hit.ImpactPoint.X,Hit.ImpactPoint.Y,MuzzleSocketLocation.Z);
 	}
@@ -256,41 +259,14 @@ bool ANTTDCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVe
 	return false;
 }
 
-bool ANTTDCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation)
+bool ANTTDCharacter::TraceUnderCrosshairs(FHitResult& Hit, FVector& OutHitLocation)
 {
-	//get current size of the viewport
-	FVector2D ViewportSize;
-	if (GEngine && GEngine->GameViewport)
+	APlayerController* TraceController = Cast<APlayerController>(GetController());
+	TraceController->GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+	if(Hit.bBlockingHit)
 	{
-		//fill ViewportSize with data
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
-	}
-
-	//get crosshair location according to what was specified in the blueprint
-	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
-	FVector CrosshairWorldPosition;
-	FVector CrosshairWorldDirection;
-
-	//fill variables with the crosshair's world position and direciton
-	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrosshairLocation, CrosshairWorldPosition, CrosshairWorldDirection);
-
-	if(bScreenToWorld)
-	{
-		//trace from crosshair world location outward
-		const FVector Start{CrosshairWorldPosition};
-		const FVector End {Start + CrosshairWorldDirection * 50000.f};
-		
-		// OutBeamLocation is the end location for the line trace until there is a hit
-		OutHitLocation = End;
-		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
-
-		//if there was a crosshair hit
-		if(OutHitResult.bBlockingHit)
-		{
-			// tentative beam location - still need to trace from gun afterwards
-			OutHitLocation = OutHitResult.Location;
-			return true;
-		}
+		OutHitLocation = Hit.ImpactPoint;
+		return true;
 	}
 	return false;
 }
@@ -319,7 +295,7 @@ bool ANTTDCharacter::CarryingAmmo()
 {
 	if(EquippedWeapon == nullptr) return false;
 
-		return Ammo > 0;
+		return AmmoCount > 0;
 }
 
 void ANTTDCharacter::MakeDamage(AActor* OtherActor)
@@ -330,6 +306,37 @@ void ANTTDCharacter::MakeDamage(AActor* OtherActor)
 		if (IsValid(PossibleEnemy))
 		{
 			UGameplayStatics::ApplyDamage(PossibleEnemy, EquippedWeapon->GetDamageToApply(), GetController(), this, MyDamageType);
+		}
+	}
+}
+
+void ANTTDCharacter::PickupAmmo(AAmmo* Ammo)
+{
+
+	AmmoCount += Ammo->GetItemCount();
+	//check to see if the gun is empty
+	if(EquippedWeapon->GetAmmo() == 0)
+	{
+		ReloadWeapon();
+	}
+
+	Ammo->Destroy();
+
+}
+
+void ANTTDCharacter::TraceForItems()
+{
+	
+	if(bShouldTraceForItems)
+	{
+		FHitResult ItemTraceResult;
+		FVector HitLocation;
+		TraceUnderCrosshairs(ItemTraceResult, HitLocation);
+		if(ItemTraceResult.bBlockingHit)
+		{
+			TraceHitItem = Cast<AItem>(ItemTraceResult.GetActor());
+			//store a reference for hitItem last frame
+			TraceHitItemLastFrame = TraceHitItem;
 		}
 	}
 }
@@ -358,6 +365,7 @@ void ANTTDCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 
 void ANTTDCharacter::IncrementOverlappedItemCount(int8 Amount)
 {
+	
 	if(OverlappedItemCount + Amount <= 0)
 	{
 		OverlappedItemCount = 0;
@@ -381,6 +389,12 @@ void ANTTDCharacter::GetPickupItem(AItem* Item)
 	{
 		SwapWeapon(Weapon);
 	}
+	
+	auto Ammo = Cast<AAmmo>(Item);
+    if(Ammo)
+    {
+    	PickupAmmo(Ammo);
+    }
 }
 
 void ANTTDCharacter::FireWeapon()
