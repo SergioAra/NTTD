@@ -12,6 +12,8 @@ class AController;
 class UCapsuleComponent;
 class UAnimInstance;
 class UWidgetComponent;
+class UNTTD_ZombieHealthBar;
+class AItem;
 
 UCLASS()
 class NTTD_API ANTTD_ZombieEnemy : public ACharacter
@@ -44,11 +46,16 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Attack")
 	bool bIsAttacking;
 
+	bool bIsShowingHealthbar;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attack", meta = (ClampMin = 0.0f))
 	float DamageToApply;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "State", meta = (ClampMin = 0.1f, ClampMax = 1.0f))
 	float HeavilyDamagedRatio;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Loot", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+	float LootProbability;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack")
 	FName RightHandAttackSocketName;
@@ -76,10 +83,16 @@ protected:
 
 	UAnimInstance* MyAnimInstance;
 
+	UNTTD_ZombieHealthBar* HealthbarReference;
+
 	//Line trace collides with box to hit enemy
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
 	class UBoxComponent* CollisionBox;
 
+	FTimerHandle TimerHandle_HideHealthBar;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot")
+	TSubclassOf<AItem> LootItemClass;
 
 public:
 	// Sets default values for this character's properties
@@ -107,6 +120,11 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_PlayMontage(UAnimMontage* MontageToPlay);
 
+	void ShowHealthbar();
+
+	void HideHealthbar();
+
+	void SpawnLoot();
 
 
 public:	

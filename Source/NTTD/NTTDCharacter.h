@@ -116,7 +116,7 @@ public:
 	//Handle reloading the weapon
 	void ReloadWeapon();
 
-
+	UNTTD_HealthComponent* GetHealthComponent() { return MyHealthComponent; };
 
 private:
 

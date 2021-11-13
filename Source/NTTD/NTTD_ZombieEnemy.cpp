@@ -10,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Controller.h"
 #include "Components/WidgetComponent.h"
+#include "NTTD_ZombieHealthBar.h"
+#include "Item.h"
 
 // Sets default values
 ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
@@ -47,8 +49,10 @@ ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
 
 	bIsHeavilyDamaged = false;
 	bIsAttacking = false;
+	bIsShowingHealthbar = false;
 	HeavilyDamagedRatio = 0.3f;
 	DamageToApply = 25.0f;
+	LootProbability = 0.75;
 
 }
 
@@ -80,6 +84,16 @@ void ANTTD_ZombieEnemy::BeginPlay()
 	{
 		MyAnimInstance = GetMesh()->GetAnimInstance();
 	}
+
+	if (IsValid(WidgetHealthBarComponent->GetUserWidgetObject()))
+	{
+		HealthbarReference = Cast<UNTTD_ZombieHealthBar>(WidgetHealthBarComponent->GetUserWidgetObject());
+		if (IsValid(HealthbarReference) && IsValid(MyHealthComponent))
+		{
+			MyHealthComponent->OnHealthUpdateDelegate.AddDynamic(HealthbarReference, &UNTTD_ZombieHealthBar::UpdateHealth);
+			HideHealthbar();
+		}
+	}
 	
 }
 
@@ -104,11 +118,11 @@ void ANTTD_ZombieEnemy::Death(AActor* DamageCauser)
 	{
 		bIsDead = true;
 
-		if (IsValid(MyController))
-		{
-			MyController->UnPossess();
-			MyController->Destroy();
-		}
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		LeftHandCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		RightHandCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		SpawnLoot();
 
 		BP_Death();
 	}
@@ -117,6 +131,55 @@ void ANTTD_ZombieEnemy::Death(AActor* DamageCauser)
 void ANTTD_ZombieEnemy::OnHealthChange(UNTTD_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	BP_OnHealthChange(CurrentHealthComponent, DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
+
+	if (CurrentHealthComponent->GetIsDead())
+	{
+		if (IsValid(HealthbarReference))
+		{
+			HideHealthbar();
+		}
+	}
+	else
+	{
+		if (bIsShowingHealthbar)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(TimerHandle_HideHealthBar);
+		}
+		else
+		{
+			ShowHealthbar();
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_HideHealthBar, this, &ANTTD_ZombieEnemy::HideHealthbar, 1.0f, false);
+		}
+	}
+}
+
+void ANTTD_ZombieEnemy::ShowHealthbar()
+{
+	bIsShowingHealthbar = true;
+	HealthbarReference->SetVisibility(ESlateVisibility::Visible);
+}
+
+void ANTTD_ZombieEnemy::HideHealthbar()
+{
+	bIsShowingHealthbar = false;
+	HealthbarReference->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void ANTTD_ZombieEnemy::SpawnLoot()
+{
+	if (!IsValid(LootItemClass))
+	{
+		return;
+	}
+
+	const float SelectedProbability = FMath::FRandRange(0, 1);
+
+	if (SelectedProbability <= LootProbability)
+	{
+		FActorSpawnParameters SpawnParameter;
+		SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		GetWorld()->SpawnActor<AItem>(LootItemClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParameter);
+	}
 }
 
 // Called every frame
@@ -135,50 +198,7 @@ void ANTTD_ZombieEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void ANTTD_ZombieEnemy::Attack()
 {
-	if (!bIsAttacking)
-	{
-		bIsAttacking = true;
-		int selector = FMath::RandRange(0, 1);
-		if (bIsHeavilyDamaged)
-		{
-			if (selector == 0)
-			{
-				if (IsValid(HeavilyDamagedAttackRightArmMontage) && IsValid(MyAnimInstance))
-				{
-					MyAnimInstance->Montage_Play(HeavilyDamagedAttackRightArmMontage, 1.0f);
-					bIsAttacking = false;
-				}
-			}
-			else
-			{
-				if (IsValid(HeavilyDamagedAttackLeftArmMontage) && IsValid(MyAnimInstance))
-				{
-					MyAnimInstance->Montage_Play(HeavilyDamagedAttackLeftArmMontage, 1.0f);
-					bIsAttacking = false;
-				}
-			}
-		}
-		else
-		{
-			if (selector == 0)
-			{
-				if (IsValid(NormalAttackRightArmMontage) && IsValid(MyAnimInstance))
-				{
-					MyAnimInstance->Montage_Play(NormalAttackRightArmMontage, 1.0f);
-					bIsAttacking = false;
-				}
-			}
-			else
-			{
-				if (IsValid(NormalAttackLeftArmMontage) && IsValid(MyAnimInstance))
-				{
-					MyAnimInstance->Montage_Play(NormalAttackLeftArmMontage, 1.0f);
-					bIsAttacking = false;
-				}
-			}
-
-		}
-	}
+	//Behavior is in Blueprints
 }
 
 void ANTTD_ZombieEnemy::MakeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
