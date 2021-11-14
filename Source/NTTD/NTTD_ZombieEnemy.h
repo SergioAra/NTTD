@@ -126,6 +126,8 @@ protected:
 
 	void SpawnLoot();
 
+	virtual void InitializeCustomDepth();
+
 
 public:	
 	// Called every frame
@@ -147,5 +149,8 @@ public:
 	void SetRightHandColliderCollision(ECollisionEnabled::Type NewCollisionState);
 
 	void SetLeftHandColliderCollision(ECollisionEnabled::Type NewCollisionState);
+
+	virtual void EnableCustomDepth();
+	virtual void DisableCustomDepth();
 
 };

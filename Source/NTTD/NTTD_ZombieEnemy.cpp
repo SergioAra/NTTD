@@ -94,7 +94,8 @@ void ANTTD_ZombieEnemy::BeginPlay()
 			HideHealthbar();
 		}
 	}
-	
+	//Set custom depth to disabled
+	InitializeCustomDepth();
 }
 
 void ANTTD_ZombieEnemy::CheckIfZombieIsHeavilyDamaged(float CurrentHealth, float MaxHealth)
@@ -182,6 +183,11 @@ void ANTTD_ZombieEnemy::SpawnLoot()
 	}
 }
 
+void ANTTD_ZombieEnemy::InitializeCustomDepth()
+{
+	DisableCustomDepth();
+}
+
 // Called every frame
 void ANTTD_ZombieEnemy::Tick(float DeltaTime)
 {
@@ -221,5 +227,15 @@ void ANTTD_ZombieEnemy::SetRightHandColliderCollision(ECollisionEnabled::Type Ne
 void ANTTD_ZombieEnemy::SetLeftHandColliderCollision(ECollisionEnabled::Type NewCollisionState)
 {
 	LeftHandCollider->SetCollisionEnabled(NewCollisionState);
+}
+
+void ANTTD_ZombieEnemy::EnableCustomDepth()
+{
+	GetMesh()->SetRenderCustomDepth(true);
+}
+
+void ANTTD_ZombieEnemy::DisableCustomDepth()
+{
+	GetMesh()->SetRenderCustomDepth(false);
 }
 

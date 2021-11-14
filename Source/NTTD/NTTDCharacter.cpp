@@ -29,7 +29,7 @@ ANTTDCharacter::ANTTDCharacter() :
 	OverlappedItemCount(0),
 
 	//automatic gun fire rate (must be greater than ShootTimeDuration)
-	AutomaticFireRate(0.1f),
+	AutomaticFireRate(0.2f),
 
 	//ammo amount variable
 	AmmoCount(30),
@@ -115,6 +115,7 @@ void ANTTDCharacter::Tick(float DeltaSeconds)
 			CursorToWorld->SetWorldRotation(CursorR);
 			//Check OverlappedItemCount and trace for items if allowed 
 			TraceForItems();
+			TraceForEnemy();
 		}
 	}
 }
@@ -337,10 +338,59 @@ void ANTTDCharacter::TraceForItems()
 		if(ItemTraceResult.bBlockingHit)
 		{
 			TraceHitItem = Cast<AItem>(ItemTraceResult.GetActor());
+			if(TraceHitItem && TraceHitItem->IsPlayerOverlapping())
+			{
+				TraceHitItem->EnableCustomDepth();
+			}
+			
+			//An AItem was hit last frame
+			if(TraceHitItemLastFrame)
+			{
+				if(TraceHitItem != TraceHitItemLastFrame)
+				{
+					//we are hitting a different AItem this frame for last frame
+					//or AItem is null this frame
+					TraceHitItemLastFrame->DisableCustomDepth();
+				}
+			}
 			//store a reference for hitItem last frame
 			TraceHitItemLastFrame = TraceHitItem;
 		}
+	}else if(TraceHitItemLastFrame)
+	{
+		//no longer overlapping any items
+		//item last frame should not show widget
+		TraceHitItemLastFrame->DisableCustomDepth();
 	}
+}
+
+void ANTTDCharacter::TraceForEnemy()
+{
+	FHitResult ItemTraceResult;
+	FVector HitLocation;
+	TraceUnderCrosshairs(ItemTraceResult, HitLocation);
+	if(ItemTraceResult.bBlockingHit)
+	{
+		TraceHitEnemy = Cast<ANTTD_ZombieEnemy>(ItemTraceResult.GetActor());
+		if(TraceHitEnemy)
+		{
+			TraceHitEnemy->EnableCustomDepth();
+		}
+			
+		//An AItem was hit last frame
+		if(TraceHitEnemyLastFrame)
+		{
+			if(TraceHitEnemy != TraceHitEnemyLastFrame)
+			{
+				//we are hitting a different AItem this frame for last frame
+				//or AItem is null this frame
+				TraceHitEnemyLastFrame->DisableCustomDepth();
+			}
+		}
+		//store a reference for hitItem last frame
+		TraceHitEnemyLastFrame = TraceHitEnemy;
+	}
+
 }
 
 void ANTTDCharacter::DropWeapon()

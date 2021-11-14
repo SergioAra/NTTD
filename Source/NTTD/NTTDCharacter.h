@@ -80,6 +80,8 @@ protected:
 	//Trace for items if OverlappedItemCount > 0
 	void TraceForItems();
 
+	void TraceForEnemy();
+
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
 
@@ -133,6 +135,14 @@ private:
 	//item traced currently (could be null)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class AItem* TraceHitItem;
+
+	//enemy traced last frame
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	class ANTTD_ZombieEnemy* TraceHitEnemyLastFrame;
+
+	//enemy traced currently (could be null)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class ANTTD_ZombieEnemy* TraceHitEnemy;
 	
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
