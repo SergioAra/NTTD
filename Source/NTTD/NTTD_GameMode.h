@@ -11,7 +11,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameStateChangeSignature);
 /**
  * 
  */
-
 class ANTTDCharacter;
 UCLASS()
 class NTTD_API ANTTD_GameMode : public AGameModeBase
