@@ -30,6 +30,9 @@ protected:
 	USoundCue* VictorySound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* VictoryVoiceSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
 	USoundCue* GameOverSound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
@@ -52,6 +55,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameFlow")
 	FName MainMenuMapName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GameFlow")
+	bool bGameOver;
 
 	FTimerHandle TimerHandle_UpdateTime;
 

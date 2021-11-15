@@ -34,6 +34,7 @@ ANTTD_GameMode::ANTTD_GameMode()
 
 	Minutes = 1.0f;
 	Seconds = 0.0f;
+	bGameOver = false;
 
 }
 
@@ -47,11 +48,27 @@ void ANTTD_GameMode::BeginPlay()
 
 void ANTTD_GameMode::Victory(ANTTDCharacter* Character)
 {
+	bGameOver = true;
 	BP_Victory(Character);
+	Character->GetMovementComponent()->StopMovementImmediately();
+	Character->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (IsValid(VictorySound))
+	{
+		PlayStateSound(VictorySound);
+		if (IsValid(VictoryVoiceSound))
+		{
+			TimerDelegate_PlayVoice.BindUFunction(this, FName("PlayStateSound"), VictoryVoiceSound);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_PlayVoice, TimerDelegate_PlayVoice, (VictorySound->GetDuration()), false);
+		}
+	}
+	
+	//GetWorld()->GetTimerManager().SetTimer(TimerHandle_BackToMainMenu, this, &ANTTD_GameMode::BackToMainMenu, TimeToGoBackToMenuAfterGameOver, false);
+
 }
 
 void ANTTD_GameMode::GameOver(ANTTDCharacter* Character)
 {
+	bGameOver = true;
 	BP_GameOver(Character);
 	Character->GetMovementComponent()->StopMovementImmediately();
 	Character->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
