@@ -22,6 +22,7 @@
 #include "NTTD_ZombieEnemy.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
+#include "NTTD_GameMode.h"
 
 ANTTDCharacter::ANTTDCharacter() :
 	//item trace variables
@@ -83,6 +84,8 @@ ANTTDCharacter::ANTTDCharacter() :
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	MyHealthComponent = CreateDefaultSubobject<UNTTD_HealthComponent>(TEXT("MyHealthComponent"));
+
+	bIsDead = false;
 }
 
 void ANTTDCharacter::Tick(float DeltaSeconds)
@@ -127,6 +130,13 @@ void ANTTDCharacter::BeginPlay()
 
 	//Spawn the default weapon and equip it
 	EquipWeapon(SpawnDefaultWeapon());
+
+	MyGameModeReference = Cast<ANTTD_GameMode>(GetWorld()->GetAuthGameMode());
+
+	if (IsValid(MyHealthComponent))
+	{
+		MyHealthComponent->OnDeadDelegate.AddDynamic(this, &ANTTDCharacter::Death);
+	}
 }
 
 
@@ -481,6 +491,19 @@ void ANTTDCharacter::ReloadWeapon()
 		}
 	}
 }
+
+void ANTTDCharacter::Death(AActor* Killer)
+{
+	if (!bIsDead)
+	{
+		bIsDead = true;
+		if (IsValid(MyGameModeReference))
+		{
+			MyGameModeReference->GameOver(this);
+		}
+	}
+}
+
 
 void ANTTDCharacter::FinishReloading()
 {

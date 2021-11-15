@@ -28,4 +28,6 @@ void UNTTD_PlayerHealthBar::InitializeWidget()
 void UNTTD_PlayerHealthBar::UpdateHealth(float CurrentHealth, float MaxHealth)
 {
 	HealthPercent = CurrentHealth / MaxHealth;
+
+	HealthColor = FMath::Lerp(EmptyHealthColor, FullHealthColor, HealthPercent);
 }

@@ -21,6 +21,7 @@ enum class ECombatState: uint8
 class AWeapon;// delete later
 class AItem; //delete later
 class UNTTD_HealthComponent;
+class ANTTD_GameMode;
 UCLASS(Blueprintable)
 class ANTTDCharacter : public ACharacter
 {
@@ -118,6 +119,9 @@ public:
 	//Handle reloading the weapon
 	void ReloadWeapon();
 
+	UFUNCTION()
+	void Death(AActor* Killer);
+
 	UNTTD_HealthComponent* GetHealthComponent() { return MyHealthComponent; };
 
 private:
@@ -199,6 +203,12 @@ private:
 	UAnimMontage* ReloadMontage;
 
 	bool bReloading;
+
+	ANTTD_GameMode* MyGameModeReference;
+
+protected:
+	UPROPERTY(BlueprintReadOnly, Category = "GameOver")
+	bool bIsDead;
 
 
 	//----------------------------------------------------------------------
