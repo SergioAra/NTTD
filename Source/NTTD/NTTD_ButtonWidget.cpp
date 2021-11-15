@@ -29,5 +29,5 @@ void UNTTD_ButtonWidget::CheckFocus()
 
 void UNTTD_ButtonWidget::SetButtonStyle(ENTTD_ButtonStyleType NewStyleType)
 {
-	BP_SetButtonStyle(NewStyleType)
+	BP_SetButtonStyle(NewStyleType);
 }
