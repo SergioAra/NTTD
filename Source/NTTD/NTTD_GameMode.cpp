@@ -62,7 +62,7 @@ void ANTTD_GameMode::Victory(ANTTDCharacter* Character)
 		}
 	}
 	
-	//GetWorld()->GetTimerManager().SetTimer(TimerHandle_BackToMainMenu, this, &ANTTD_GameMode::BackToMainMenu, TimeToGoBackToMenuAfterGameOver, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_BackToMainMenu, this, &ANTTD_GameMode::BackToMainMenu, TimeToGoBackToMenuAfterVictory, false);
 
 }
 
@@ -82,7 +82,7 @@ void ANTTD_GameMode::GameOver(ANTTDCharacter* Character)
 		}
 	}
 	
-	//GetWorld()->GetTimerManager().SetTimer(TimerHandle_BackToMainMenu, this, &ANTTD_GameMode::BackToMainMenu, TimeToGoBackToMenuAfterGameOver, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_BackToMainMenu, this, &ANTTD_GameMode::BackToMainMenu, TimeToGoBackToMenuAfterGameOver, false);
 }
 
 void ANTTD_GameMode::BackToMainMenu()
