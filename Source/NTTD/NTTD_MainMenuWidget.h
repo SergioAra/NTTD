@@ -17,7 +17,7 @@ class NTTD_API UNTTD_MainMenuWidget : public UUserWidget
 protected:
 	//variables
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Main Menu")
-		FName  GamePlayLevelName;
+	FName  GamePlayLevelName;
 
 
 protected:
