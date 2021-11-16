@@ -53,6 +53,7 @@ ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
 	HeavilyDamagedRatio = 0.3f;
 	DamageToApply = 25.0f;
 	LootProbability = 0.75;
+	ScoreValue = 50;
 
 }
 

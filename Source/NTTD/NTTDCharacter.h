@@ -106,6 +106,11 @@ public:
 	FORCEINLINE AItem* GetTraceHitItem() const {return TraceHitItem;}
 
 	FORCEINLINE bool GetBReloading() const {return bReloading;}
+
+	FORCEINLINE int GetScore() const {return Score;}
+
+	UFUNCTION(BlueprintCallable)
+	void IncremetScore(int AmmounttoIncrease);
 	
 	//Adds / substracts to/from Overlapped ItemCount and updates bShouldTrace for items
 	void IncrementOverlappedItemCount(int8 Amount);
@@ -205,6 +210,9 @@ private:
 	bool bReloading;
 
 	ANTTD_GameMode* MyGameModeReference;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
+	int Score;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GameOver")

@@ -35,7 +35,9 @@ ANTTDCharacter::ANTTDCharacter() :
 	//ammo amount variable
 	AmmoCount(30),
 
-	bReloading(false)
+	bReloading(false),
+
+	Score(0)
 
 
 
@@ -425,6 +427,11 @@ void ANTTDCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 }
 
 
+void ANTTDCharacter::IncremetScore(int AmmounttoIncrease)
+{
+	Score += AmmounttoIncrease;
+}
+
 void ANTTDCharacter::IncrementOverlappedItemCount(int8 Amount)
 {
 	
@@ -477,6 +484,7 @@ void ANTTDCharacter::FireWeapon()
 
 void ANTTDCharacter::ReloadWeapon()
 {
+	if(bReloading) return;
 	if(EquippedWeapon == nullptr) return;
 
 	// Do we have enough ammo of the correct type and the clip is not full

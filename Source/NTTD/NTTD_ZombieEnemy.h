@@ -94,6 +94,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot")
 	TSubclassOf<AItem> LootItemClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Loot", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+	int ScoreValue;
+
 public:
 	// Sets default values for this character's properties
 	ANTTD_ZombieEnemy();
