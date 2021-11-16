@@ -57,6 +57,7 @@ void ANTTD_CureStation::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent
 		if(NTTDCharacter)
 		{
 			bIsPlayerOverlapping = true;
+			NTTDCharacter->SetCurrentAmountOfInfection(0.0f);
 		}
 	}
 }

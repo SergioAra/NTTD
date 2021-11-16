@@ -87,6 +87,11 @@ ANTTDCharacter::ANTTDCharacter() :
 
 	MyHealthComponent = CreateDefaultSubobject<UNTTD_HealthComponent>(TEXT("MyHealthComponent"));
 
+	MaxInfection = 100.0f;
+	CurrentAmountOfInfection = 0.0f;
+	InfectionRate = 5.0f;
+
+
 	bIsDead = false;
 }
 
@@ -139,6 +144,9 @@ void ANTTDCharacter::BeginPlay()
 	{
 		MyHealthComponent->OnDeadDelegate.AddDynamic(this, &ANTTDCharacter::Death);
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_UpdateInfection, this, &ANTTDCharacter::UpdateInitialInfection, 0.2f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InfectionGrowth, this, &ANTTDCharacter::InfectionGrowth, 1.0f, true);
 }
 
 
@@ -498,6 +506,33 @@ void ANTTDCharacter::ReloadWeapon()
 			AnimInstance->Montage_JumpToSection(EquippedWeapon->GetReloadMontageSection());
 		}
 	}
+}
+
+void ANTTDCharacter::InfectionGrowth()
+{
+	if (CurrentAmountOfInfection < MaxInfection)
+	{
+		CurrentAmountOfInfection += InfectionRate;
+		OnInfectionUpdateDelegate.Broadcast(CurrentAmountOfInfection, MaxInfection);
+	}
+	else
+	{
+		OnInfectionUpdateDelegate.Broadcast(MaxInfection, MaxInfection);
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_InfectionGrowth);
+		UGameplayStatics::ApplyDamage(this, MyHealthComponent->GetMaxHealth(), this->GetController(), this, MyDamageType);
+	}
+}
+
+void ANTTDCharacter::SetCurrentAmountOfInfection(float NewAmountOfInfection)
+{
+	CurrentAmountOfInfection = NewAmountOfInfection;
+	OnInfectionUpdateDelegate.Broadcast(CurrentAmountOfInfection, MaxInfection);
+
+}
+
+void ANTTDCharacter::UpdateInitialInfection()
+{
+	OnInfectionUpdateDelegate.Broadcast(CurrentAmountOfInfection, MaxInfection);
 }
 
 void ANTTDCharacter::Death(AActor* Killer)

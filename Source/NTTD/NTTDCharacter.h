@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "NTTDCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnInfectionUpdateSignature, float, CurrentAmountOfInfection, float, MaxAmountOfInfection);
 
 UENUM(BlueprintType)
 enum class ECombatState: uint8
@@ -124,10 +125,23 @@ public:
 	//Handle reloading the weapon
 	void ReloadWeapon();
 
+	void InfectionGrowth();
+
+	void SetCurrentAmountOfInfection(float NewAmountOfInfection);
+
+	float GetCurrentAmountOfInfection() { return CurrentAmountOfInfection; };
+
+	void UpdateInitialInfection();
+
 	UFUNCTION()
 	void Death(AActor* Killer);
 
 	UNTTD_HealthComponent* GetHealthComponent() { return MyHealthComponent; };
+
+public:
+	//Delegates
+	UPROPERTY(BlueprintAssignable)
+	FOnInfectionUpdateSignature OnInfectionUpdateDelegate;
 
 private:
 
@@ -217,6 +231,19 @@ private:
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GameOver")
 	bool bIsDead;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
+	float MaxInfection;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
+	float InfectionRate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
+	float CurrentAmountOfInfection;
+
+	FTimerHandle TimerHandle_InfectionGrowth;
+
+	FTimerHandle TimerHandle_UpdateInfection;
 
 
 	//----------------------------------------------------------------------
