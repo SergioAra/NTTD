@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NTTDCharacter.h"
 #include "GameFramework/Actor.h"
 #include "NTTD_CureStation.generated.h"
 
@@ -29,6 +30,25 @@ protected:
 	
 	virtual void InitializeCustomDepth();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
+	float MaxCharge;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
+	float CurrentRate;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
+	float ChargeRate;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
+	float DischargeRate;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
+	float CurrentAmountOfCharge;
+
+	FTimerHandle TimerHandle_ChargeGrowth;
+
+	FTimerHandle TimerHandle_UpdateCharge;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -49,22 +69,42 @@ private:
 	//Enables item tracing when overlapped 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent * AreaSphere;
-
-	//Item count
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	int32 ItemCount;
 	
 	//is the player overlapping with the item 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	bool bIsPlayerOverlapping;
 
-	//Pointer to the character
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	class ANTTDCharacter* Character;
-
 	//Sound played when item is equipped 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class USoundCue* EquipSound;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class ANTTDCharacter* CuredCharacter;
+
+	void Recharge();
+
+	void UpdateInitialCharge();
+
+	bool bShoulCure;
+
+	void Cure();
+
+	void StopCure();
+
+	void Highlight();
+
+	void HighlightSetOnCharge();
+
+	void FullEnergyHighlight();
+
+	void LowEnergyHighlight();
+
+	void CureSwitch();
+
+	void SpawnBeam();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* BeamParticles;
 
 	
 	
@@ -82,8 +122,6 @@ public:
 	FORCEINLINE UStaticMeshComponent* GetSecondItemMesh() const {return SecondItemMesh;}
 
 	FORCEINLINE USoundCue* GetEquipSound() const {return EquipSound;}
-	
-	FORCEINLINE int32 GetItemCount() const {return ItemCount;}
 
 	virtual void EnableCustomDepth();
 	virtual void DisableCustomDepth();

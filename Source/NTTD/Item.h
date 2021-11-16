@@ -153,6 +153,8 @@ public:
 	
 	FORCEINLINE int32 GetItemCount() const {return ItemCount;}
 
+	void SetItemCount(int32 NewCount){ItemCount = NewCount;}
+
 	virtual void EnableCustomDepth();
 	virtual void DisableCustomDepth();
 };

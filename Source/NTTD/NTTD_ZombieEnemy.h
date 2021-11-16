@@ -94,6 +94,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot")
 	TSubclassOf<AItem> LootItemClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot")
+	int32 AmmoCount;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Loot", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 	int ScoreValue;
 

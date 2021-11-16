@@ -110,6 +110,12 @@ public:
 
 	FORCEINLINE int GetScore() const {return Score;}
 
+	FORCEINLINE float GetInfectionRate() const {return InfectionRate;}
+
+	FORCEINLINE bool BisDead() const {return bIsDead;}
+
+	void SetInfectionRate(float NewInfectionRate) {InfectionRate = NewInfectionRate;}
+
 	UFUNCTION(BlueprintCallable)
 	void IncremetScore(int AmmounttoIncrease);
 	
@@ -238,6 +244,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
 	float InfectionRate;
 
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
 	float CurrentAmountOfInfection;
 

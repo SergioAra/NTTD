@@ -17,23 +17,33 @@ ANTTDPlayerController::ANTTDPlayerController()
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 }
 
+void ANTTDPlayerController::Movement()
+{
+	ANTTDCharacter* const MyNTTDCharacter = Cast<ANTTDCharacter>(GetPawn()) ;
+	if (MyNTTDCharacter && !MyNTTDCharacter->BisDead())
+	{
+		FHitResult Hit;
+		if(bLockAim)
+		{
+			if(TraceMouseCursor(Hit))
+				SetNewRotateDestination(Hit.ImpactPoint);
+		}else
+			if(bMoveToMouseCursor)
+			{
+				if(TraceMouseCursor(Hit))
+					SetNewMoveDestination(Hit.ImpactPoint);
+			}
+	}
+}
+
 void ANTTDPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
-	FHitResult Hit;
+	
 
+	Movement();
 
-	if(bLockAim)
-	{
-		if(TraceMouseCursor(Hit))
-			SetNewRotateDestination(Hit.ImpactPoint);
-	}else
-		if(bMoveToMouseCursor)
-		{
-			if(TraceMouseCursor(Hit))
-				SetNewMoveDestination(Hit.ImpactPoint);
-		}
 	
 }
 

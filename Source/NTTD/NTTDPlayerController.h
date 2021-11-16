@@ -24,6 +24,7 @@ protected:
 	/** True if the controlled character should lock in place to aim. */
 	uint32 bLockAim : 1;
 
+	void Movement();
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;

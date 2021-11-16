@@ -476,6 +476,8 @@ void ANTTDCharacter::GetPickupItem(AItem* Item)
 
 void ANTTDCharacter::FireWeapon()
 {
+	if(bIsDead) return;
+	if(bReloading) return;
 	if(EquippedWeapon == nullptr) return;
 	if(WeaponHasAmmo())
 	{
@@ -492,6 +494,7 @@ void ANTTDCharacter::FireWeapon()
 
 void ANTTDCharacter::ReloadWeapon()
 {
+	if(bIsDead) return;
 	if(bReloading) return;
 	if(EquippedWeapon == nullptr) return;
 
@@ -512,6 +515,8 @@ void ANTTDCharacter::InfectionGrowth()
 {
 	if (CurrentAmountOfInfection < MaxInfection)
 	{
+		if(CurrentAmountOfInfection + InfectionRate < 0) return;
+		
 		CurrentAmountOfInfection += InfectionRate;
 		OnInfectionUpdateDelegate.Broadcast(CurrentAmountOfInfection, MaxInfection);
 	}
@@ -542,6 +547,7 @@ void ANTTDCharacter::Death(AActor* Killer)
 		bIsDead = true;
 		if (IsValid(MyGameModeReference))
 		{
+			
 			MyGameModeReference->GameOver(this);
 		}
 	}

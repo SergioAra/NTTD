@@ -2,6 +2,8 @@
 
 
 #include "NTTD_ZombieEnemy.h"
+
+#include "Ammo.h"
 #include "NTTD_HealthComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -54,6 +56,7 @@ ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
 	DamageToApply = 25.0f;
 	LootProbability = 0.75;
 	ScoreValue = 50;
+	AmmoCount = 5;
 
 }
 
@@ -180,7 +183,11 @@ void ANTTD_ZombieEnemy::SpawnLoot()
 	{
 		FActorSpawnParameters SpawnParameter;
 		SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GetWorld()->SpawnActor<AItem>(LootItemClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParameter);
+		AAmmo* Spawned = Cast<AAmmo>(GetWorld()->SpawnActor<AItem>(LootItemClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParameter));
+		if(Spawned)
+		{
+			Spawned->SetItemCount(AmmoCount);
+		}
 	}
 }
 
