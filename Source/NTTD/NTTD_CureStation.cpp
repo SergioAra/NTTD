@@ -3,7 +3,6 @@
 
 #include "NTTD_CureStation.h"
 
-#include "AITypes.h"
 #include "NTTDCharacter.h"
 #include "Components/AudioComponent.h"
 #include "Components/BoxComponent.h"
@@ -70,7 +69,7 @@ void ANTTD_CureStation::BeginPlay()
 void ANTTD_CureStation::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	
-	if(OtherActor)
+	if(Cast<ANTTDCharacter>(OtherActor))
 	{
 		CuredCharacter = Cast<ANTTDCharacter>(OtherActor);
 		if(CuredCharacter)
@@ -86,7 +85,7 @@ void ANTTD_CureStation::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent
 
 void ANTTD_CureStation::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if(OtherActor)
+	if(Cast<ANTTDCharacter>(OtherActor))
 	{
 		CuredCharacter = Cast<ANTTDCharacter>(OtherActor);
 		if(CuredCharacter)
