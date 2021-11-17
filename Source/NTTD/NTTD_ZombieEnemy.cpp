@@ -234,12 +234,14 @@ void ANTTD_ZombieEnemy::MakeDamage(UPrimitiveComponent* OverlappedComponent, AAc
 
 void ANTTD_ZombieEnemy::SetRightHandColliderCollision(ECollisionEnabled::Type NewCollisionState)
 {
-	RightHandCollider->SetCollisionEnabled(NewCollisionState);
+	if(RightHandCollider)
+		RightHandCollider->SetCollisionEnabled(NewCollisionState);
 }
 
 void ANTTD_ZombieEnemy::SetLeftHandColliderCollision(ECollisionEnabled::Type NewCollisionState)
 {
-	LeftHandCollider->SetCollisionEnabled(NewCollisionState);
+	if(LeftHandCollider)
+		LeftHandCollider->SetCollisionEnabled(NewCollisionState);
 }
 
 void ANTTD_ZombieEnemy::EnableCustomDepth()

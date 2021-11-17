@@ -202,11 +202,22 @@ void ANTTD_CureStation::Highlight()
 void ANTTD_CureStation::HighlightSetOnCharge()
 {
 	const float Percentage = CurrentAmountOfCharge/MaxCharge;
-	if(Percentage == 1)
+	if(Percentage > 0.3f)
 	{
-		FullEnergyHighlight();
-	}
-	if(Percentage == 0.3f)
+		if(Percentage == 1)
+		{
+			FullEnergyHighlight();
+		}else
+		{
+			if(bIsPlayerOverlapping)
+			{
+				FullEnergyHighlight();
+			}else
+			{
+				ChargingHighlight();
+			}
+		}
+	}else
 	{
 		LowEnergyHighlight();
 	}
@@ -223,6 +234,12 @@ void ANTTD_CureStation::LowEnergyHighlight()
 {
 	ItemMesh->SetCustomDepthStencilValue(250);
 	SecondItemMesh->SetCustomDepthStencilValue(250);
+}
+
+void ANTTD_CureStation::ChargingHighlight()
+{
+	ItemMesh->SetCustomDepthStencilValue(254);
+	SecondItemMesh->SetCustomDepthStencilValue(254);
 }
 
 void ANTTD_CureStation::CureSwitch()

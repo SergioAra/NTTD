@@ -115,6 +115,8 @@ private:
 
 	void LowEnergyHighlight();
 
+	void ChargingHighlight();
+
 	void CureSwitch();
 
 	void SpawnBeam();
