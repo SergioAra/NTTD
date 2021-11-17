@@ -74,9 +74,21 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	bool bIsPlayerOverlapping;
 
-	//Sound played when item is equipped 
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	class USoundCue* EquipSound;
+	class USoundCue* ChargedSound;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+    class USoundCue* DischargedSound;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+    class USoundCue* CureLoopSound;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class UAudioComponent* AudioComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class UAudioComponent* CureLoopComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class ANTTDCharacter* CuredCharacter;
@@ -85,7 +97,11 @@ private:
 
 	void UpdateInitialCharge();
 
-	bool bShoulCure;
+	bool bShouldCure;
+
+	bool bChargeSoundPlayed;
+
+	bool bDischargeSoundPlayed;
 
 	void Cure();
 
@@ -102,6 +118,10 @@ private:
 	void CureSwitch();
 
 	void SpawnBeam();
+
+	void CureSoundSwitch();
+
+	void ChargeSoundSwitch();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* BeamParticles;
@@ -120,8 +140,6 @@ public:
 	FORCEINLINE UStaticMeshComponent* GetItemMesh() const {return ItemMesh;}
 
 	FORCEINLINE UStaticMeshComponent* GetSecondItemMesh() const {return SecondItemMesh;}
-
-	FORCEINLINE USoundCue* GetEquipSound() const {return EquipSound;}
 
 	virtual void EnableCustomDepth();
 	virtual void DisableCustomDepth();

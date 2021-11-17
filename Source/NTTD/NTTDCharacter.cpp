@@ -349,16 +349,14 @@ void ANTTDCharacter::PickupAmmo(AAmmo* Ammo)
 
 void ANTTDCharacter::TraceForItems()
 {
-	
-	if(bShouldTraceForItems)
-	{
+
 		FHitResult ItemTraceResult;
 		FVector HitLocation;
 		TraceUnderCrosshairs(ItemTraceResult, HitLocation);
 		if(ItemTraceResult.bBlockingHit)
 		{
 			TraceHitItem = Cast<AItem>(ItemTraceResult.GetActor());
-			if(TraceHitItem && TraceHitItem->IsPlayerOverlapping())
+			if(TraceHitItem)
 			{
 				TraceHitItem->EnableCustomDepth();
 			}
@@ -376,12 +374,6 @@ void ANTTDCharacter::TraceForItems()
 			//store a reference for hitItem last frame
 			TraceHitItemLastFrame = TraceHitItem;
 		}
-	}else if(TraceHitItemLastFrame)
-	{
-		//no longer overlapping any items
-		//item last frame should not show widget
-		TraceHitItemLastFrame->DisableCustomDepth();
-	}
 }
 
 void ANTTDCharacter::TraceForEnemy()

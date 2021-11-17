@@ -183,7 +183,12 @@ void ANTTD_ZombieEnemy::SpawnLoot()
 	{
 		FActorSpawnParameters SpawnParameter;
 		SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		AAmmo* Spawned = Cast<AAmmo>(GetWorld()->SpawnActor<AItem>(LootItemClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParameter));
+		FHitResult TraceHit;
+		GetWorld()->LineTraceSingleByChannel(TraceHit,GetActorLocation(),GetActorLocation() - FVector(0.f,0.f,400.f), ECC_Visibility );
+
+		FVector SpawnLocation = TraceHit.bBlockingHit ? TraceHit.Location : GetActorLocation();
+		
+		AAmmo* Spawned = Cast<AAmmo>(GetWorld()->SpawnActor<AItem>(LootItemClass, SpawnLocation, FRotator::ZeroRotator, SpawnParameter));
 		if(Spawned)
 		{
 			Spawned->SetItemCount(AmmoCount);

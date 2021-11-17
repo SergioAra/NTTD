@@ -5,10 +5,12 @@
 
 #include "AITypes.h"
 #include "NTTDCharacter.h"
+#include "Components/AudioComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 ANTTD_CureStation::ANTTD_CureStation():
@@ -18,7 +20,9 @@ ANTTD_CureStation::ANTTD_CureStation():
 	DischargeRate(-5.f),
 	CurrentAmountOfCharge(0.f),
 	bIsPlayerOverlapping(false),
-	bShoulCure(false)
+	bShouldCure(false),
+	bChargeSoundPlayed(true),
+	bDischargeSoundPlayed(true)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -35,11 +39,14 @@ ANTTD_CureStation::ANTTD_CureStation():
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	//set collision to block visibility channel
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-
-
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(GetRootComponent());
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+	AudioComponent->SetupAttachment(GetRootComponent());
 
+	CureLoopComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("HealingAudioComponent"));
+	CureLoopComponent->SetupAttachment(GetRootComponent());
+	
 }
 
 // Called when the game starts or when spawned
@@ -55,6 +62,8 @@ void ANTTD_CureStation::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_ChargeGrowth, this, &ANTTD_CureStation::Recharge, 1.0f, true);
 	
 	InitializeCustomDepth();
+
+	CureLoopComponent->SetSound(CureLoopSound);
 	
 }
 
@@ -67,7 +76,7 @@ void ANTTD_CureStation::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent
 		if(CuredCharacter)
 		{
 			bIsPlayerOverlapping = true;
-			if(bShoulCure)
+			if(bShouldCure)
 			{
 				Cure();
 			}
@@ -83,7 +92,7 @@ void ANTTD_CureStation::OnSphereEndOverlap(UPrimitiveComponent* OverlappedCompon
 		if(CuredCharacter)
 		{
 			bIsPlayerOverlapping = false;
-			if(bShoulCure)
+			if(bShouldCure)
 			{
 				StopCure();
 			}
@@ -111,6 +120,7 @@ void ANTTD_CureStation::InitializeCustomDepth()
 }
 
 
+
 // Called every frame
 void ANTTD_CureStation::Tick(float DeltaTime)
 {
@@ -120,6 +130,8 @@ void ANTTD_CureStation::Tick(float DeltaTime)
 	HighlightSetOnCharge();
 	Highlight();
 	SpawnBeam();
+	CureSoundSwitch();
+	ChargeSoundSwitch();
 
 }
 
@@ -144,6 +156,8 @@ void ANTTD_CureStation::Recharge()
 		}else
 		{
 			CurrentAmountOfCharge += CurrentRate;
+			bChargeSoundPlayed = false;
+			bDischargeSoundPlayed = false;
 		}
 		//update if we get a widget
 	}
@@ -177,7 +191,7 @@ void ANTTD_CureStation::StopCure()
 
 void ANTTD_CureStation::Highlight()
 {
-	if(bShoulCure)
+	if(bShouldCure)
 	{
 		EnableCustomDepth();
 	}else
@@ -216,18 +230,18 @@ void ANTTD_CureStation::CureSwitch()
 {
 	if(CurrentAmountOfCharge >= MaxCharge)
 	{
-		bShoulCure = true;
+		bShouldCure = true;
 	}
 	if(CurrentAmountOfCharge <= 0)
 	{
-		bShoulCure = false;
+		bShouldCure = false;
 	}
 }
 
 void ANTTD_CureStation::SpawnBeam()
 {
 	if(!CuredCharacter) return;
-	if(!bShoulCure) return;
+	if(!bShouldCure) return;
 	if(!bIsPlayerOverlapping) return;
 	if(BeamParticles)
 	{
@@ -237,6 +251,58 @@ void ANTTD_CureStation::SpawnBeam()
 			Beam->SetVectorParameter(FName("Target"), CuredCharacter->GetTransform().GetLocation());
 		}
 	}
+}
+
+void ANTTD_CureStation::CureSoundSwitch()
+{
+	if(!CureLoopSound) return;
+	if(!CureLoopComponent) return;
+	if(!CuredCharacter) return;
+	
+	if(bShouldCure)
+	{
+		if(bIsPlayerOverlapping)
+		{
+			if(!CureLoopComponent->IsPlaying())
+				CureLoopComponent->Play();
+		}else
+		{
+			if(CureLoopComponent->IsPlaying())
+				CureLoopComponent->Stop();
+		}
+	}else
+	{
+		if(CureLoopComponent->IsPlaying())
+			CureLoopComponent->Stop();
+	}
+}
+
+void ANTTD_CureStation::ChargeSoundSwitch()
+{
+	if(!ChargedSound) return;
+	if(!DischargedSound) return;
+	if(!AudioComponent) return;
+	
+	if(CurrentAmountOfCharge >= MaxCharge)
+	{
+		if(!bChargeSoundPlayed)
+		{
+			AudioComponent->SetSound(ChargedSound);
+			AudioComponent->Play();
+			bChargeSoundPlayed = true;
+		}
+	}
+	if(CurrentAmountOfCharge <= 0)
+	{
+		if(!bDischargeSoundPlayed)
+		{
+			AudioComponent->SetSound(DischargedSound);
+			AudioComponent->Play();
+			bDischargeSoundPlayed = true;
+		}
+			
+	}
+	
 }
 
 
