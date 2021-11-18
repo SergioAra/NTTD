@@ -97,7 +97,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot")
 	int32 AmmoCount;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Loot", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Loot")
 	int ScoreValue;
 
 public:
