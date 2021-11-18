@@ -14,6 +14,7 @@
 #include "Components/WidgetComponent.h"
 #include "NTTD_ZombieHealthBar.h"
 #include "Item.h"
+#include "NTTD_HealthItem.h"
 
 // Sets default values
 ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
@@ -172,7 +173,7 @@ void ANTTD_ZombieEnemy::HideHealthbar()
 
 void ANTTD_ZombieEnemy::SpawnLoot()
 {
-	if (!IsValid(LootItemClass))
+	if (!IsValid(LootItemClass) || !IsValid(LootHealthItemClass))
 	{
 		return;
 	}
@@ -187,11 +188,21 @@ void ANTTD_ZombieEnemy::SpawnLoot()
 		GetWorld()->LineTraceSingleByChannel(TraceHit,GetActorLocation(),GetActorLocation() - FVector(0.f,0.f,400.f), ECC_Visibility );
 
 		FVector SpawnLocation = TraceHit.bBlockingHit ? TraceHit.Location : GetActorLocation();
-		
-		AAmmo* Spawned = Cast<AAmmo>(GetWorld()->SpawnActor<AItem>(LootItemClass, SpawnLocation, FRotator::ZeroRotator, SpawnParameter));
-		if(Spawned)
+
+		const float ProbabilityOfAmmoOrHealth = FMath::FRandRange(0, 1);
+
+		if (ProbabilityOfAmmoOrHealth > 0.5)
 		{
-			Spawned->SetItemCount(AmmoCount);
+
+			AAmmo* Spawned = Cast<AAmmo>(GetWorld()->SpawnActor<AItem>(LootItemClass, SpawnLocation, FRotator::ZeroRotator, SpawnParameter));
+			if (Spawned)
+			{
+				Spawned->SetItemCount(AmmoCount);
+			}
+		}
+		else
+		{
+			GetWorld()->SpawnActor<ANTTD_HealthItem>(LootHealthItemClass, SpawnLocation, FRotator::ZeroRotator, SpawnParameter);
 		}
 	}
 }

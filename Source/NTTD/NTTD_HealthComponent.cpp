@@ -10,6 +10,24 @@ UNTTD_HealthComponent::UNTTD_HealthComponent()
 }
 
 
+bool UNTTD_HealthComponent::IsHealthAdded(float HealthToAdd)
+{
+	if (bIsDead)
+	{
+		return false;
+	}
+
+	if (CurrentHealth == MaxHealth)
+	{
+		return false;
+	}
+
+	CurrentHealth = FMath::Clamp((CurrentHealth + HealthToAdd), 0.0f, MaxHealth);
+	OnHealthUpdateDelegate.Broadcast(CurrentHealth, MaxHealth);
+
+	return true;
+}
+
 // Called when the game starts
 void UNTTD_HealthComponent::BeginPlay()
 {

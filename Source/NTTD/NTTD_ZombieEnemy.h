@@ -14,6 +14,7 @@ class UAnimInstance;
 class UWidgetComponent;
 class UNTTD_ZombieHealthBar;
 class AItem;
+class ANTTD_HealthItem;
 
 UCLASS()
 class NTTD_API ANTTD_ZombieEnemy : public ACharacter
@@ -93,6 +94,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot")
 	TSubclassOf<AItem> LootItemClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "HealthLoot")
+	TSubclassOf<ANTTD_HealthItem> LootHealthItemClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot")
 	int32 AmmoCount;

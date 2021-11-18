@@ -54,6 +54,8 @@ public:
 
 	float GetMaxHealth() { return MaxHealth; };
 
+	bool IsHealthAdded(float HealthToAdd);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -24,6 +24,8 @@ protected:
 	/** True if the controlled character should lock in place to aim. */
 	uint32 bLockAim : 1;
 
+	bool bIsGamePaused;
+
 	void Movement();
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
@@ -64,6 +66,16 @@ protected:
 	void ReloadButtonPressed();
 	void ReloadButtonReleased();
 	
+public: 
+	UFUNCTION(BlueprintCallable)
+	void PauseTheGame();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PauseTheGame(bool CurrentPausedState);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_UnPauseTheGame(bool CurrentPausedState);
+
 };
 
 

@@ -14,6 +14,7 @@
 ANTTDPlayerController::ANTTDPlayerController()
 {
 	bShowMouseCursor = true;
+	bIsGamePaused = false;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 }
 
@@ -63,6 +64,8 @@ void ANTTDPlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("Reload", IE_Pressed, this, &ANTTDPlayerController::ReloadButtonPressed);
 	InputComponent->BindAction("Reload", IE_Released, this, &ANTTDPlayerController::ReloadButtonReleased);
+
+	InputComponent->BindAction("Pause", IE_Pressed, this, &ANTTDPlayerController::PauseTheGame).bExecuteWhenPaused = true;
 
 	// support touch devices 
 	//InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ANTTDPlayerController::MoveToTouchLocation);
@@ -234,4 +237,23 @@ void ANTTDPlayerController::ReloadButtonPressed()
 
 void ANTTDPlayerController::ReloadButtonReleased()
 {
+}
+
+void ANTTDPlayerController::PauseTheGame()
+{
+	if (!bIsGamePaused)
+	{
+		bIsGamePaused = true;
+		UGameplayStatics::SetGamePaused(GetWorld(), bIsGamePaused);
+		BP_PauseTheGame(bIsGamePaused);//Add PauseMenuWidget
+		return;
+	}
+
+	if (bIsGamePaused)
+	{
+		bIsGamePaused = false;
+		UGameplayStatics::SetGamePaused(GetWorld(), bIsGamePaused);
+		BP_UnPauseTheGame(bIsGamePaused);//Delete PauseMenuWidget
+		return;
+	}
 }
