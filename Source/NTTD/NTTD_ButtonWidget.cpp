@@ -18,7 +18,6 @@ void UNTTD_ButtonWidget::CheckFocus()
 	if (IsHovered())
 	{
 		SetKeyboardFocus();
-		SetButtonStyle(ENTTD_ButtonStyleType::ButtonStyleType_Mouse);
 	}
 	else
 	{
