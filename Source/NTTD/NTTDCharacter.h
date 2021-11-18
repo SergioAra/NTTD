@@ -57,6 +57,7 @@ protected:
 
 	//FireWeapon functions
 	void PlayFireSound();
+	void PlayDryFireSound();
 	void SendBullet();
 	void PlayGunFireMontage();
 
@@ -196,6 +197,9 @@ private:
 	//randomized gunshot sound cue
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class USoundCue* FireSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class USoundCue* DryFireSound;
 
 	//flash spawned at barrel socket
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))

@@ -198,6 +198,15 @@ void ANTTDCharacter::PlayFireSound()
 	}	
 }
 
+void ANTTDCharacter::PlayDryFireSound()
+{
+	if (DryFireSound)
+	{
+		//play the sound in object
+		UGameplayStatics::PlaySound2D(this,DryFireSound);
+	}	
+}
+
 void ANTTDCharacter::SendBullet()
 {
 	//Send bullet:
@@ -481,6 +490,9 @@ void ANTTDCharacter::FireWeapon()
 		EquippedWeapon->DecrementAmmo();
 
 		StartFireTimer();
+	}else
+	{
+		PlayDryFireSound();
 	}
 }
 
@@ -514,9 +526,17 @@ void ANTTDCharacter::InfectionGrowth()
 	}
 	else
 	{
-		OnInfectionUpdateDelegate.Broadcast(MaxInfection, MaxInfection);
-		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_InfectionGrowth);
-		UGameplayStatics::ApplyDamage(this, MyHealthComponent->GetMaxHealth(), this->GetController(), this, MyDamageType);
+		if(InfectionRate<0)
+		{
+			CurrentAmountOfInfection += InfectionRate;
+			OnInfectionUpdateDelegate.Broadcast(CurrentAmountOfInfection, MaxInfection);
+		}else
+		{
+			OnInfectionUpdateDelegate.Broadcast(MaxInfection, MaxInfection);
+			GetWorld()->GetTimerManager().ClearTimer(TimerHandle_InfectionGrowth);
+			UGameplayStatics::ApplyDamage(this, MyHealthComponent->GetMaxHealth(), this->GetController(), this, MyDamageType);
+		}
+		
 	}
 }
 
