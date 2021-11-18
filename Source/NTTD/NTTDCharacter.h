@@ -238,6 +238,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
 	int Score;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class USoundCue* AttackedSound;
+
+	
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GameOver")
 	bool bIsDead;
