@@ -30,7 +30,7 @@ protected:
 	
 	virtual void InitializeCustomDepth();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))
 	float MaxCharge;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Infection", meta = (ClampMin = 0.0f))

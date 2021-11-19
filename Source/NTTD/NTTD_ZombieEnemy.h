@@ -58,6 +58,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Loot", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 	float LootProbability;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Loot", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+	float HealthProbability;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack")
 	FName RightHandAttackSocketName;
 

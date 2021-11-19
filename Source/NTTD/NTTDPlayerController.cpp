@@ -188,6 +188,8 @@ void ANTTDPlayerController::OnLockAimPressed()
 {
 	// set flag to lock player in place
 	bLockAim = true;
+	if(bMoveToMouseCursor)
+		FireWeapon();
 }
 
 void ANTTDPlayerController::OnLockAimReleased()

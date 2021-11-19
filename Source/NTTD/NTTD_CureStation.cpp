@@ -13,7 +13,7 @@
 
 // Sets default values
 ANTTD_CureStation::ANTTD_CureStation():
-	MaxCharge(50.0f),
+	MaxCharge(60.0f),
 	CurrentRate(5.f),
 	ChargeRate(3.f),
 	DischargeRate(-5.f),

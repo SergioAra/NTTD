@@ -56,6 +56,7 @@ ANTTD_ZombieEnemy::ANTTD_ZombieEnemy()
 	HeavilyDamagedRatio = 0.3f;
 	DamageToApply = 25.0f;
 	LootProbability = 0.75;
+	HealthProbability = 0.2f;
 	ScoreValue = 50;
 	AmmoCount = 5;
 
@@ -191,7 +192,7 @@ void ANTTD_ZombieEnemy::SpawnLoot()
 
 		const float ProbabilityOfAmmoOrHealth = FMath::FRandRange(0, 1);
 
-		if (ProbabilityOfAmmoOrHealth > 0.5)
+		if (ProbabilityOfAmmoOrHealth > HealthProbability)
 		{
 
 			AAmmo* Spawned = Cast<AAmmo>(GetWorld()->SpawnActor<AItem>(LootItemClass, SpawnLocation, FRotator::ZeroRotator, SpawnParameter));
