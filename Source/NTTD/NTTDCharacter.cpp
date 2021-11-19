@@ -23,6 +23,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 #include "NTTD_GameMode.h"
+#include "Components/AudioComponent.h"
 
 ANTTDCharacter::ANTTDCharacter() :
 	//item trace variables
@@ -86,6 +87,7 @@ ANTTDCharacter::ANTTDCharacter() :
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	MyHealthComponent = CreateDefaultSubobject<UNTTD_HealthComponent>(TEXT("MyHealthComponent"));
+	VoiceSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("VoiceSoundComponent"));
 
 	MaxInfection = 100.0f;
 	CurrentAmountOfInfection = 0.0f;
@@ -143,6 +145,7 @@ void ANTTDCharacter::BeginPlay()
 	if (IsValid(MyHealthComponent))
 	{
 		MyHealthComponent->OnDeadDelegate.AddDynamic(this, &ANTTDCharacter::Death);
+		MyHealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ANTTDCharacter::ReceiveDamage);
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_UpdateInfection, this, &ANTTDCharacter::UpdateInitialInfection, 0.2f, false);
@@ -561,6 +564,18 @@ void ANTTDCharacter::Death(AActor* Killer)
 		{
 			
 			MyGameModeReference->GameOver(this);
+		}
+	}
+}
+
+void ANTTDCharacter::ReceiveDamage(UNTTD_HealthComponent* HealthComponent, AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (IsValid(VoiceSoundComponent))
+	{
+		if (IsValid(HurtSound))
+		{
+			VoiceSoundComponent->SetSound(HurtSound);
+			VoiceSoundComponent->Play();
 		}
 	}
 }

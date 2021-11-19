@@ -23,6 +23,8 @@ class AWeapon;// delete later
 class AItem; //delete later
 class UNTTD_HealthComponent;
 class ANTTD_GameMode;
+class UAudioComponent;
+class USoundCue;
 UCLASS(Blueprintable)
 class ANTTDCharacter : public ACharacter
 {
@@ -34,6 +36,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
 	TSubclassOf<UDamageType> MyDamageType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UAudioComponent* VoiceSoundComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* HurtSound;
 
 	//----------------------------------------------------------------------
 
@@ -142,6 +150,9 @@ public:
 
 	UFUNCTION()
 	void Death(AActor* Killer);
+
+	UFUNCTION()
+	void ReceiveDamage(UNTTD_HealthComponent* HealthComponent, AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 
 	UNTTD_HealthComponent* GetHealthComponent() { return MyHealthComponent; };
 
